@@ -297,8 +297,9 @@
         if (!snap.exists()) return;
         const data = snap.val();
         const keys = Object.keys(data);
-        if (keys.length <= 30) return;
-        const removeCount = keys.length - 30;
+        //لا تكثر من الطعام
+        if (keys.length <= 10) return;
+        const removeCount = keys.length - 10;
         const q2 = query(dbRef(db, 'messages'), orderByChild('timestamp'), limitToFirst(removeCount));
         const snap2 = await get(q2);
         if (!snap2.exists()) return;
@@ -312,4 +313,5 @@
     setInterval(() => { trimMessagesIfNeeded(); }, 10000);
   </script>
 </body>
+
 </html>
