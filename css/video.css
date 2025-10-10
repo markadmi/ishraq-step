@@ -42,8 +42,8 @@ body {
     padding: 20px;
     box-shadow: 0 0 15px rgba(3, 232, 244, 0.256);
     transition: transform 0.3s;
-    width: 60%;
-    height: 60%;
+    width: 85%;
+    height: 70%;
   }
 
   .video:hover {
@@ -85,4 +85,5 @@ body {
    width: 65%;
    height: 65%;
   }
+
 
