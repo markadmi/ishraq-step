@@ -143,38 +143,10 @@
     let bans = {};
     onValue(bansRef, (snap) => { bans = snap.val() || {}; });
 
-    // === 🔔 إعداد الإشعارات بطريقة آمنة ومضمونة ===
-    let notifEnabled = false;
-    function requestNotifications() {
-      if (!('Notification' in window)) return;
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          notifEnabled = true;
-          new Notification("تم تفعيل الإشعارات ✅", {
-            body: "سيتم تنبيهك عند وصول رسائل جديدة.",
-            icon: "icon.png"
-          });
-        } else {
-          alert("يرجى السماح بالإشعارات من إعدادات المتصفح لتعمل التنبيهات.");
-        }
-      });
-    }
-
-    // يطلب الإذن بعد أول تفاعل من المستخدم (لتفادي حظر المتصفح)
-    document.addEventListener('click', () => {
-      if (!notifEnabled) requestNotifications();
-    }, { once: true });
-
-    function showNotification(title, body, icon) {
-      if (notifEnabled && Notification.permission === 'granted') {
-        new Notification(title, { body, icon });
-      }
-    }
-
     // === إرسال الرسائل ===
     sendBtn.addEventListener('click', async () => {
       if (!currentUser) return alert('سجل الدخول أولاً');
-      if (bans[currentUser.deviceId]) return alert('قام المسؤول بحظرك من الدردشة');
+      if (bans[currentUser.deviceId]) return alert('🚫 تم حظرك من قبل الإدارة');
 
       const text = (msgText.value || '').trim();
       if (!text) return;
@@ -191,10 +163,9 @@
         });
         msgText.value = '';
         await trimMessagesIfNeeded();
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) { console.error(err); }
     });
+
     msgText.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
 
     // === استقبال الرسائل ===
@@ -204,11 +175,6 @@
       if (!m) return;
       if (bans[m.deviceId]) return;
       appendMessage(m, snap.key);
-
-      // ✅ إشعار عند استقبال رسالة من شخص آخر
-      if (m.deviceId !== currentUser.deviceId && m.type === 'msg') {
-        showNotification(`${m.name} أرسل رسالة`, m.text, m.avatar || '');
-      }
     });
 
     onChildRemoved(messagesRef, (snap) => {
@@ -216,7 +182,7 @@
       if (msgEl) msgEl.remove();
     });
 
-    // === بناء واجهة الرسائل ===
+    // === عرض الرسائل ===
     function appendMessage(m, key) {
       const wrap = document.createElement('div');
       wrap.className = 'msg-row';
@@ -233,11 +199,12 @@
 
       const body = document.createElement('div');
       body.className = 'msg-body';
-      body.innerHTML = `<div class="msg-head">
-                          <span class="role">${escapeHtml(m.role || 'طالب')}</span> 
-                          <strong>${escapeHtml(m.name || 'مستخدم')}</strong> 
-                        </div>
-                        <div class="msg-text">${escapeHtml(m.text || '')}</div>`;
+      body.innerHTML = `
+        <div class="msg-head">
+          <span class="role">${escapeHtml(m.role || 'طالب')}</span> 
+          <strong>${escapeHtml(m.name || 'مستخدم')}</strong> 
+        </div>
+        <div class="msg-text">${escapeHtml(m.text || '')}</div>`;
 
       wrap.appendChild(avatar);
       wrap.appendChild(body);
@@ -252,20 +219,30 @@
       modalRole.innerText = `الدور: ${user.role || ''}`;
       const isBanned = !!bans[user.deviceId];
 
+      // 🚫 منع المسؤول من حظر أو فك حظر الرئيس 👑
+      if (user.role === 'رئيس') {
+        banToggleBtn.disabled = true;
+        banToggleBtn.innerText = '❌ لا يمكن حظر الرئيس';
+        banToggleBtn.className = 'btn btn-muted';
+        return (userModal.style.display = 'flex');
+      }
+
+      banToggleBtn.disabled = false;
       banToggleBtn.innerText = isBanned ? 'فك الحظر' : 'حظر المستخدم';
       banToggleBtn.className = isBanned ? 'btn btn-primary' : 'btn btn-danger';
 
       banToggleBtn.onclick = async () => {
         try {
+          if (bans[currentUser.deviceId]) return alert('❌ لا يمكنك الحظر أثناء كونك محظورًا');
           if (isBanned) {
             await remove(dbRef(db, `bans/${user.deviceId}`));
-            alert(`${user.name} تم فك الحظر`);
+            alert(`${user.name} تم فك الحظر ✅`);
           } else {
             await set(dbRef(db, `bans/${user.deviceId}`), {
               name: user.name,
               timestamp: Date.now()
             });
-            alert(`${user.name} تم حظره`);
+            alert(`${user.name} تم حظره 🚫`);
           }
           closeModal.click();
         } catch (err) {
@@ -279,15 +256,18 @@
     closeModal.addEventListener('click', () => { userModal.style.display = 'none'; });
     userModal.addEventListener('click', (e) => { if (e.target === userModal) userModal.style.display = 'none'; });
 
+    // === حذف كل الرسائل ===
     clearAllBtn.addEventListener('click', async () => {
       if (currentUser.role !== 'مسؤول') return alert('فقط المسؤول');
-      if (!confirm('هل تريد حذف كل الرسائل؟')) return;
+      if (bans[currentUser.deviceId]) return alert('❌ لا يمكنك الحذف أثناء كونك محظورًا');
+      if (!confirm('⚠️ هل تريد حذف كل الرسائل؟')) return;
       try {
         await set(dbRef(db, 'messages'), null);
-        alert('تم حذف كل الرسائل');
+        alert('✅ تم حذف كل الرسائل');
       } catch (err) { console.error(err); }
     });
 
+    // === تسجيل الخروج ===
     logoutBtn.addEventListener('click', async () => {
       try {
         const mRef = push(dbRef(db, 'messages'));
@@ -304,7 +284,12 @@
       window.location.href = 'index.html';
     });
 
-    function escapeHtml(text){ if(!text) return ''; return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeHtml(text){
+      if(!text) return '';
+      return text.replace(/&/g,'&amp;')
+                 .replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;');
+    }
 
     async function trimMessagesIfNeeded() {
       try {
