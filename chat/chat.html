@@ -143,19 +143,35 @@
     let bans = {};
     onValue(bansRef, (snap) => { bans = snap.val() || {}; });
 
-    // ✅ تفعيل الإشعارات
-    if ('Notification' in window) {
+    // === 🔔 إعداد الإشعارات بطريقة آمنة ومضمونة ===
+    let notifEnabled = false;
+    function requestNotifications() {
+      if (!('Notification' in window)) return;
       Notification.requestPermission().then(permission => {
-        if (permission === 'granted') console.log('تم السماح بالإشعارات');
+        if (permission === 'granted') {
+          notifEnabled = true;
+          new Notification("تم تفعيل الإشعارات ✅", {
+            body: "سيتم تنبيهك عند وصول رسائل جديدة.",
+            icon: "icon.png"
+          });
+        } else {
+          alert("يرجى السماح بالإشعارات من إعدادات المتصفح لتعمل التنبيهات.");
+        }
       });
     }
 
+    // يطلب الإذن بعد أول تفاعل من المستخدم (لتفادي حظر المتصفح)
+    document.addEventListener('click', () => {
+      if (!notifEnabled) requestNotifications();
+    }, { once: true });
+
     function showNotification(title, body, icon) {
-      if (Notification.permission === 'granted') {
+      if (notifEnabled && Notification.permission === 'granted') {
         new Notification(title, { body, icon });
       }
     }
 
+    // === إرسال الرسائل ===
     sendBtn.addEventListener('click', async () => {
       if (!currentUser) return alert('سجل الدخول أولاً');
       if (bans[currentUser.deviceId]) return alert('قام المسؤول بحظرك من الدردشة');
@@ -181,6 +197,7 @@
     });
     msgText.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
 
+    // === استقبال الرسائل ===
     const messagesRef = dbRef(db, 'messages');
     onChildAdded(messagesRef, (snap) => {
       const m = snap.val();
@@ -188,7 +205,7 @@
       if (bans[m.deviceId]) return;
       appendMessage(m, snap.key);
 
-      // ✅ إشعار إذا كانت الرسالة من مستخدم آخر
+      // ✅ إشعار عند استقبال رسالة من شخص آخر
       if (m.deviceId !== currentUser.deviceId && m.type === 'msg') {
         showNotification(`${m.name} أرسل رسالة`, m.text, m.avatar || '');
       }
@@ -199,6 +216,7 @@
       if (msgEl) msgEl.remove();
     });
 
+    // === بناء واجهة الرسائل ===
     function appendMessage(m, key) {
       const wrap = document.createElement('div');
       wrap.className = 'msg-row';
@@ -227,6 +245,7 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
+    // === نافذة الحظر ===
     function openUserModal(user) {
       modalAvatar.src = user.avatar || '';
       modalName.innerText = user.name || 'مستخدم';
