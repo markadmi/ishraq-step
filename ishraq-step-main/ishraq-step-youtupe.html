@@ -67,7 +67,7 @@
 
 <!-- 🧭 الأقسام السبعة -->
 <div id="sections-container" class="sections">
-  <div class="section-card" data-type="math0">🧮 ماث 0</div>
+  <div class="section-card" data-type="ماث 0">🧮 ماث 0</div>
   <div class="section-card" data-type="ماث 1">🧮 ماث 1</div>
   <div class="section-card" data-type="انجليزي">🇬🇧 إنجليزي</div>
   <div class="section-card" data-type="دوائر كهربائية">🔌 دوائر كهربائية</div>
@@ -85,6 +85,7 @@
 
 <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
 
+<!-- Firebase -->
 <script type="module">
   import { db } from './chat/js/fb.js';
   import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -96,30 +97,16 @@
   const backBtn = document.querySelector('.back-btn');
 
   let coursesData = {};
-  let dataLoaded = false; // 🟡 حالة تحميل البيانات
 
-  // ✅ تحميل البيانات من Firebase
+  // 🧠 تحميل كل الفيديوهات مرة واحدة من Firebase
   onValue(ref(db, 'courses'), snapshot => {
-    if (snapshot.exists()) {
-      coursesData = snapshot.val();
-      dataLoaded = true;
-      console.log("✅ تم تحميل البيانات:", coursesData);
-    } else {
-      console.warn("⚠️ لا توجد بيانات في المسار 'courses'.");
-    }
-  }, error => {
-    console.error("❌ خطأ أثناء الاتصال بقاعدة البيانات:", error);
+    coursesData = snapshot.val() || {};
   });
 
   // 📌 عند الضغط على قسم
   document.querySelectorAll('.section-card').forEach(card => {
     card.addEventListener('click', () => {
-      if (!dataLoaded) {
-        alert("⏳ يرجى الانتظار قليلاً... يتم تحميل البيانات من الخادم");
-        return;
-      }
       const type = card.dataset.type;
-      console.log("🟡 القسم المختار:", type);
       showSectionVideos(type);
     });
   });
@@ -129,13 +116,10 @@
     sectionsContainer.style.display = 'none';
     videosContainer.style.display = 'block';
     sectionTitle.textContent = `🎓 ${type}`;
+
     videosList.innerHTML = '';
 
-    const filtered = Object.values(coursesData).filter(
-      item => item.type?.trim() === type.trim()
-    );
-
-    console.log(`📌 عدد الفيديوهات في ${type}:`, filtered.length);
+    const filtered = Object.values(coursesData).filter(item => item.type === type);
 
     if (filtered.length === 0) {
       videosList.innerHTML = '<p>🚧 لا توجد فيديوهات بعد لهذا القسم</p>';
@@ -163,7 +147,5 @@
   });
 </script>
 
-
 </body>
 </html>
-
