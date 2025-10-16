@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جاري التحميل...</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+
+
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      overflow: hidden;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 25px;
+      color: #ffb300;
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #ffb300, 0 0 10px #ffb300; }
+      to { text-shadow: 0 0 20px #ffb300, 0 0 40px #ffb300; }
+    }
+
+    .loader {
+      display: flex;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #ffb300;
+      animation: bounce 1s infinite alternate;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.1s; }
+    .dot:nth-child(3) { animation-delay: 0.2s; }
+
+    @keyframes bounce {
+      from { transform: translateY(0); opacity: 0.3; }
+      to { transform: translateY(-15px); opacity: 1; }
+    }
+
+    .progress {
+      width: 150px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 25px;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress span {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f2ff00, #ff7b00);
+      border-radius: 2px;
+      animation: fill 3.5s linear forwards;
+    }
+
+    @keyframes fill {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">ishraq step منصة</div>
+  <div class="loader">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <div class="progress"><span></span></div>
+
+  <script>
+    setTimeout(() => {
+     window.location.href = "ishraq-step-main/index.html";
+    }, 3500);
+  </script>
+
+</body>
+</html>
