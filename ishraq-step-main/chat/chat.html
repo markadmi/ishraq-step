@@ -34,18 +34,9 @@
       border-radius: 50%;
       object-fit: cover;
     }
-    .user-modal h3 {
-      margin: 10px 0 5px;
-    }
-    .user-modal .muted {
-      color: #666;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-    .user-modal .btn {
-      width: 100%;
-      margin-top: 8px;
-    }
+    .user-modal h3 { margin: 10px 0 5px; }
+    .user-modal .muted { color: #666; font-size: 13px; margin-bottom: 10px; }
+    .user-modal .btn { width: 100%; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -69,7 +60,9 @@
       <div id="adminTools" class="admin-tools" style="display:none; margin-top:12px;">
         <h4>أدوات المسؤول</h4>
         <div class="muted small">اضغط على صورة المستخدم للتحكم</div>
-        <button id="clearAllBtn" class="btn btn-danger" style="margin-top:10px;">حذف كل الرسائل (مسؤول)</button>
+        <button id="clearAllBtn" class="btn btn-danger" style="margin-top:10px;">حذف كل الرسائل</button>
+        <!-- ✅ زر إيقاف/تشغيل الدردشة -->
+        <button id="toggleChatBtn" class="btn btn-warning" style="margin-top:10px;">⏸️ إيقاف الدردشة</button>
       </div>
 
       <div style="margin-top:12px;">
@@ -88,7 +81,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/fb.js"></script>
   <script type="module">
     import { db } from './js/fb.js';
     import {
@@ -102,7 +94,8 @@
       limitToFirst,
       get,
       remove,
-      onValue
+      onValue,
+      update
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
     const messagesDiv = document.getElementById('messages');
@@ -112,6 +105,8 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const adminTools = document.getElementById('adminTools');
     const clearAllBtn = document.getElementById('clearAllBtn');
+    const toggleChatBtn = document.getElementById('toggleChatBtn');
+
     const userModal = document.getElementById('userModal');
     const modalAvatar = document.getElementById('modalAvatar');
     const modalName = document.getElementById('modalName');
@@ -135,7 +130,7 @@
           </div>
         </div>
       `;
-      if (currentUser.role === 'مسؤول') adminTools.style.display = 'block';
+      if (currentUser.role === 'رئيس') adminTools.style.display = 'block';
     }
     renderSession();
 
@@ -143,9 +138,25 @@
     let bans = {};
     onValue(bansRef, (snap) => { bans = snap.val() || {}; });
 
+    // ✅ مراقبة حالة الدردشة
+    const chatStatusRef = dbRef(db, 'chat_status');
+    let chatOpen = true;
+    onValue(chatStatusRef, (snap) => {
+      const val = snap.val();
+      chatOpen = val ? val.open : true;
+      toggleChatBtn.innerText = chatOpen ? '⏸️ إيقاف الدردشة' : '▶️ فتح الدردشة';
+    });
+
+    // ✅ زر الرئيس لإيقاف أو فتح الدردشة
+    toggleChatBtn.addEventListener('click', async () => {
+      if (currentUser.role !== 'رئيس') return;
+      await set(chatStatusRef, { open: !chatOpen });
+    });
+
     // === إرسال الرسائل ===
     sendBtn.addEventListener('click', async () => {
       if (!currentUser) return alert('سجل الدخول أولاً');
+      if (!chatOpen) return alert('⛔ الدردشة مغلقة حالياً من قبل الرئيس');
       if (bans[currentUser.deviceId]) return alert('🚫 تم حظرك من قبل الإدارة');
 
       const text = (msgText.value || '').trim();
@@ -182,7 +193,6 @@
       if (msgEl) msgEl.remove();
     });
 
-    // === عرض الرسائل ===
     function appendMessage(m, key) {
       const wrap = document.createElement('div');
       wrap.className = 'msg-row';
@@ -193,7 +203,7 @@
       avatar.src = m.avatar || '';
       avatar.alt = m.name || '';
       avatar.addEventListener('click', () => {
-        if (currentUser.role !== 'مسؤول') return;
+        if (currentUser.role !== 'مسؤول' && currentUser.role !== 'رئيس') return;
         openUserModal(m);
       });
 
@@ -219,21 +229,12 @@
       modalRole.innerText = `الدور: ${user.role || ''}`;
       const isBanned = !!bans[user.deviceId];
 
-      // 🚫 منع المسؤول من حظر أو فك حظر الرئيس 👑
-      if (user.role === 'رئيس') {
-        banToggleBtn.disabled = true;
-        banToggleBtn.innerText = '❌ لا يمكن حظر الرئيس';
-        banToggleBtn.className = 'btn btn-muted';
-        return (userModal.style.display = 'flex');
-      }
-
       banToggleBtn.disabled = false;
       banToggleBtn.innerText = isBanned ? 'فك الحظر' : 'حظر المستخدم';
       banToggleBtn.className = isBanned ? 'btn btn-primary' : 'btn btn-danger';
 
       banToggleBtn.onclick = async () => {
         try {
-          if (bans[currentUser.deviceId]) return alert('❌ لا يمكنك الحظر أثناء كونك محظورًا');
           if (isBanned) {
             await remove(dbRef(db, `bans/${user.deviceId}`));
             alert(`${user.name} تم فك الحظر ✅`);
@@ -245,9 +246,7 @@
             alert(`${user.name} تم حظره 🚫`);
           }
           closeModal.click();
-        } catch (err) {
-          console.error(err);
-        }
+        } catch (err) { console.error(err); }
       };
 
       userModal.style.display = 'flex';
@@ -256,10 +255,9 @@
     closeModal.addEventListener('click', () => { userModal.style.display = 'none'; });
     userModal.addEventListener('click', (e) => { if (e.target === userModal) userModal.style.display = 'none'; });
 
-    // === حذف كل الرسائل ===
+    // حذف كل الرسائل
     clearAllBtn.addEventListener('click', async () => {
-      if (currentUser.role !== 'مسؤول') return alert('فقط المسؤول');
-      if (bans[currentUser.deviceId]) return alert('❌ لا يمكنك الحذف أثناء كونك محظورًا');
+      if (currentUser.role !== 'مسؤول' && currentUser.role !== 'رئيس') return alert('فقط للمسؤول');
       if (!confirm('⚠️ هل تريد حذف كل الرسائل؟')) return;
       try {
         await set(dbRef(db, 'messages'), null);
@@ -267,7 +265,6 @@
       } catch (err) { console.error(err); }
     });
 
-    // === تسجيل الخروج ===
     logoutBtn.addEventListener('click', async () => {
       try {
         const mRef = push(dbRef(db, 'messages'));
@@ -314,5 +311,4 @@
   </script>
 </body>
 </html>
-
 
