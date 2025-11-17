@@ -8,6 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link href="css/colors.css" rel="stylesheet">
   <link rel="icon" href="icon.jpg" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff8a00">
 
   <!--ads-->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
@@ -153,6 +155,14 @@
     </aside>
   </main>
  <script src="js/effects.js"></script>
+ <script>
+   // تسجيل Service Worker
+   if ('serviceWorker' in navigator) {
+     navigator.serviceWorker.register('service-worker.js')
+       .then(registration => console.log('Service Worker مسجّل بنجاح'))
+       .catch(error => console.log('فشل تسجيل Service Worker:', error));
+   }
+ </script>
  <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
 </body>
 </html>
