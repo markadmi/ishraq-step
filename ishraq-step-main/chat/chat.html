@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8"/>
+  <title>الدردشة العامة</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="style/main.css">
+  <style>
+    .user-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .user-modal .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      width: 280px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      animation: pop 0.25s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .user-modal img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-modal h3 { margin: 10px 0 5px; }
+    .user-modal .muted { color: #666; font-size: 13px; margin-bottom: 10px; }
+    .user-modal .btn { width: 100%; margin-top: 8px; }
+  </style>
+   <!--ads-->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
+     crossorigin="anonymous">
+      </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card chat-col">
+      <div class="chat-header">
+        <h2>جروب مهندسين جامعة سوهاج</h2>
+      </div>
+
+      <div id="messages" class="messages"></div>
+
+      <div class="composer">
+        <input id="msgText" type="text" placeholder="اكتب رسالة...">
+        <button id="sendBtn" class="btn">إرسال</button>
+      </div>
+    </div>
+
+    <div class="card side-col">
+      <div id="sessionBox" class="session-box"></div>
+
+      <div id="adminTools" class="admin-tools" style="display:none; margin-top:12px;">
+        <h4>أدوات المسؤول</h4>
+        <div class="muted small">اضغط على صورة المستخدم للتحكم</div>
+        <button id="clearAllBtn" class="btn btn-danger" style="margin-top:10px;">حذف كل الرسائل</button>
+        <!-- ✅ زر إيقاف/تشغيل الدردشة -->
+        <button id="toggleChatBtn" class="btn btn-warning" style="margin-top:10px;">⏸️ إيقاف الدردشة</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button id="logoutBtn" class="btn btn-muted">تسجيل خروج</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="userModal" class="user-modal">
+    <div class="modal-content">
+      <img id="modalAvatar" src="" alt="">
+      <h3 id="modalName"></h3>
+      <div id="modalRole" class="muted"></div>
+      <button id="banToggleBtn" class="btn btn-danger"></button>
+      <button id="closeModal" class="btn btn-muted">إغلاق</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './js/fb.js';
+    import {
+      ref as dbRef,
+      push,
+      onChildAdded,
+      onChildRemoved,
+      set,
+      query,
+      orderByChild,
+      limitToFirst,
+      get,
+      remove,
+      onValue,
+      update
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    const messagesDiv = document.getElementById('messages');
+    const msgText = document.getElementById('msgText');
+    const sendBtn = document.getElementById('sendBtn');
+    const sessionBox = document.getElementById('sessionBox');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminTools = document.getElementById('adminTools');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const toggleChatBtn = document.getElementById('toggleChatBtn');
+
+    const userModal = document.getElementById('userModal');
+    const modalAvatar = document.getElementById('modalAvatar');
+    const modalName = document.getElementById('modalName');
+    const modalRole = document.getElementById('modalRole');
+    const banToggleBtn = document.getElementById('banToggleBtn');
+    const closeModal = document.getElementById('closeModal');
+
+    const s = localStorage.getItem('chat_session');
+    if (!s) { window.location.href = 'index.html'; throw new Error('No session'); }
+    const session = JSON.parse(s);
+    let currentUser = session;
+    currentUser.deviceId = localStorage.getItem('device_id');
+
+    function renderSession() {
+      sessionBox.innerHTML = `
+        <div class="session">
+          <img src="${currentUser.avatarUrl}" class="avatar-sm" alt="avatar">
+          <div style="margin-right:8px;">
+            <div style="font-weight:700">${escapeHtml(currentUser.name)}</div>
+            <div class="muted small">${escapeHtml(currentUser.role)}</div>
+          </div>
+        </div>
+      `;
+      if (currentUser.role === 'رئيس') adminTools.style.display = 'block';
+    }
+    renderSession();
+
+    const bansRef = dbRef(db, 'bans');
+    let bans = {};
+    onValue(bansRef, (snap) => { bans = snap.val() || {}; });
+
+    // ✅ مراقبة حالة الدردشة
+    const chatStatusRef = dbRef(db, 'chat_status');
+    let chatOpen = true;
+    onValue(chatStatusRef, (snap) => {
+      const val = snap.val();
+      chatOpen = val ? val.open : true;
+      toggleChatBtn.innerText = chatOpen ? '⏸️ إيقاف الدردشة' : '▶️ فتح الدردشة';
+    });
+
+    // ✅ زر الرئيس لإيقاف أو فتح الدردشة
+    toggleChatBtn.addEventListener('click', async () => {
+      if (currentUser.role !== 'رئيس') return;
+      await set(chatStatusRef, { open: !chatOpen });
+    });
+
+    // === إرسال الرسائل ===
+    sendBtn.addEventListener('click', async () => {
+      if (!currentUser) return alert('سجل الدخول أولاً');
+      if (!chatOpen) return alert('⛔ الدردشة مغلقة حالياً من قبل الرئيس');
+      if (bans[currentUser.deviceId]) return alert('🚫 تم حظرك من قبل الإدارة');
+
+      const text = (msgText.value || '').trim();
+      if (!text) return;
+      try {
+        const mRef = push(dbRef(db, 'messages'));
+        await set(mRef, {
+          type: 'msg',
+          name: currentUser.name,
+          avatar: currentUser.avatarUrl || '',
+          role: currentUser.role || 'طالب',
+          deviceId: currentUser.deviceId,
+          text,
+          timestamp: Date.now()
+        });
+        msgText.value = '';
+        await trimMessagesIfNeeded();
+      } catch (err) { console.error(err); }
+    });
+
+    msgText.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+
+    // === استقبال الرسائل ===
+    const messagesRef = dbRef(db, 'messages');
+    onChildAdded(messagesRef, (snap) => {
+      const m = snap.val();
+      if (!m) return;
+      if (bans[m.deviceId]) return;
+      appendMessage(m, snap.key);
+    });
+
+    onChildRemoved(messagesRef, (snap) => {
+      const msgEl = document.getElementById(`msg-${snap.key}`);
+      if (msgEl) msgEl.remove();
+    });
+
+    function appendMessage(m, key) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg-row';
+      wrap.id = `msg-${key}`;
+
+      const avatar = document.createElement('img');
+      avatar.className = 'avatar';
+      avatar.src = m.avatar || '';
+      avatar.alt = m.name || '';
+      avatar.addEventListener('click', () => {
+        if (currentUser.role !== 'مسؤول' && currentUser.role !== 'رئيس') return;
+        openUserModal(m);
+      });
+
+      const body = document.createElement('div');
+      body.className = 'msg-body';
+      body.innerHTML = `
+        <div class="msg-head">
+          <span class="role">${escapeHtml(m.role || 'طالب')}</span> 
+          <strong>${escapeHtml(m.name || 'مستخدم')}</strong> 
+        </div>
+        <div class="msg-text">${escapeHtml(m.text || '')}</div>`;
+
+      wrap.appendChild(avatar);
+      wrap.appendChild(body);
+      messagesDiv.appendChild(wrap);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // === نافذة الحظر ===
+    function openUserModal(user) {
+      modalAvatar.src = user.avatar || '';
+      modalName.innerText = user.name || 'مستخدم';
+      modalRole.innerText = `الدور: ${user.role || ''}`;
+      const isBanned = !!bans[user.deviceId];
+
+      banToggleBtn.disabled = false;
+      banToggleBtn.innerText = isBanned ? 'فك الحظر' : 'حظر المستخدم';
+      banToggleBtn.className = isBanned ? 'btn btn-primary' : 'btn btn-danger';
+
+      banToggleBtn.onclick = async () => {
+        try {
+          if (isBanned) {
+            await remove(dbRef(db, `bans/${user.deviceId}`));
+            alert(`${user.name} تم فك الحظر ✅`);
+          } else {
+            await set(dbRef(db, `bans/${user.deviceId}`), {
+              name: user.name,
+              timestamp: Date.now()
+            });
+            alert(`${user.name} تم حظره 🚫`);
+          }
+          closeModal.click();
+        } catch (err) { console.error(err); }
+      };
+
+      userModal.style.display = 'flex';
+    }
+
+    closeModal.addEventListener('click', () => { userModal.style.display = 'none'; });
+    userModal.addEventListener('click', (e) => { if (e.target === userModal) userModal.style.display = 'none'; });
+
+    // حذف كل الرسائل
+    clearAllBtn.addEventListener('click', async () => {
+      if (currentUser.role !== 'مسؤول' && currentUser.role !== 'رئيس') return alert('فقط للمسؤول');
+      if (!confirm('⚠️ هل تريد حذف كل الرسائل؟')) return;
+      try {
+        await set(dbRef(db, 'messages'), null);
+        alert('✅ تم حذف كل الرسائل');
+      } catch (err) { console.error(err); }
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const mRef = push(dbRef(db, 'messages'));
+        await set(mRef, {
+          type: 'leave',
+          name: currentUser.name,
+          avatar: currentUser.avatarUrl || '',
+          role: currentUser.role || '',
+          text: `${currentUser.name} ▪️ غادر الدردشة`,
+          timestamp: Date.now()
+        });
+      } catch(e){}
+      localStorage.removeItem('chat_session');
+      window.location.href = 'https://markadmi.github.io/ishraq-step/';
+    });
+
+    function escapeHtml(text){
+      if(!text) return '';
+      return text.replace(/&/g,'&amp;')
+                 .replace(/</g,'&lt;')
+                 .replace(/>/g,'&gt;');
+    }
+
+    async function trimMessagesIfNeeded() {
+      try {
+        const q = query(dbRef(db, 'messages'), orderByChild('timestamp'));
+        const snap = await get(q);
+        if (!snap.exists()) return;
+        const data = snap.val();
+        const keys = Object.keys(data);
+        if (keys.length <= 20) return;
+        const removeCount = keys.length - 20;
+        const q2 = query(dbRef(db, 'messages'), orderByChild('timestamp'), limitToFirst(removeCount));
+        const snap2 = await get(q2);
+        if (!snap2.exists()) return;
+        const old = snap2.val();
+        for (const k of Object.keys(old)) {
+          await remove(dbRef(db, `messages/${k}`));
+        }
+      } catch (err) { console.error('trim error', err); }
+    }
+
+    setInterval(() => { trimMessagesIfNeeded(); }, 10000);
+  </script>
+</body>
+</html>
+
+
