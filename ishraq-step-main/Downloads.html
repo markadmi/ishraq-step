@@ -101,7 +101,7 @@
           <p class="book-description">${esc(book.description || '')}</p>
           <div class="meta">الصفحات: ${esc(book.pages || '')} • الحجم: ${esc(book.size || '')} • التقييم: ${typeof book.rating !== 'undefined' ? esc(book.rating) : '—'}</div>
           <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
-            <a class="download-btn" href="book.html?id=${encodeURIComponent(id)}">عرض التفاصيل</a>
+            <a class="download-btn" href="${window.location.pathname}?id=${encodeURIComponent(id)}">عرض التفاصيل</a>
             ${book.fileUrl ? `<a class="download-btn" href="${esc(book.fileUrl)}" download>تحميل</a>` : ''}
           </div>
           <div class="meta" style="margin-top:8px">نشر بتاريخ: ${dateLabel(book.createdAt)}</div>
