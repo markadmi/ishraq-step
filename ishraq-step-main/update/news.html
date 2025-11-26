@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📰 نشر الأخبار - Ishraq Step</title>
+<style>
+  body{font-family:Cairo, sans-serif; background: linear-gradient(135deg,#4caf50,#00bcd4); margin:0; padding:20px; color:#333; direction:rtl}
+  h1{text-align:center;color:white; margin-bottom:40px}
+  
+  .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:30px; flex-wrap:wrap}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; transition:all .3s}
+  .nav-btn:hover{transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+  
+  .form{background:white;padding:15px;border-radius:12px;max-width:500px;margin:20px auto;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+  label{display:block;margin-top:10px;font-weight:bold}
+  input,textarea{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:6px; box-sizing:border-box; font-family:Cairo, sans-serif}
+  button{background:linear-gradient(90deg,#4caf50,#00bcd4);color:white;border:none;padding:10px;margin-top:15px;width:100%;border-radius:8px;cursor:pointer;font-size:16px; font-weight:600}
+  button:hover{opacity:.95}
+  
+  .news-list{margin-top:20px}
+  .news-item{background:white;border-radius:10px;padding:15px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .news-item h3{margin:0 0 10px 0;color:#333}
+  .news-item img{width:100%; border-radius:8px; margin:10px 0;max-height:300px;object-fit:cover}
+  .news-item p{margin:8px 0;color:#555;line-height:1.6}
+  .delete-btn{background:#f44336;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;color:white;margin-top:10px;font-weight:600}
+  .delete-btn:hover{opacity:.9}
+  .small{font-size:12px;color:#888;margin-top:6px}
+  .progress{height:8px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px;display:none}
+  .progress > span{display:block;height:100%;background:linear-gradient(90deg,#4caf50,#00bcd4);width:0%;transition:width .3s}
+  .status{text-align:center;color:white;margin:10px 0;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>📰 نشر الأخبار والمنشورات</h1>
+
+<div class="nav-buttons">
+  <button class="nav-btn" onclick="location.href='courses.html'">📹 الكورسات</button>
+  <button class="nav-btn" onclick="location.href='books.html'">📘 الكتب</button>
+  <button class="nav-btn" style="background:#4caf50; color:white;">📰 الأخبار</button>
+  <button class="nav-btn" onclick="location.href='../index.html'">🏠 الرئيسية</button>
+</div>
+
+<div class="form">
+  <h2 style="text-align:center;color:#333;margin-top:0">إضافة منشور جديد</h2>
+  
+  <label>عنوان المنشور:</label>
+  <input id="post-title" type="text" placeholder="أدخل عنوان جذاب">
+
+  <label>محتوى المنشور:</label>
+  <textarea id="post-content" placeholder="اكتب محتوى المنشور هنا..."></textarea>
+
+  <label>اسم الناشر:</label>
+  <input id="post-author" type="text" placeholder="اسمك أو اسم الفريق" value="Ishraq Step">
+
+  <label>صورة المنشور (اختياري):</label>
+  <input id="post-image" type="file" accept="image/*">
+
+  <div class="progress" id="upload-progress"><span></span></div>
+
+  <button id="addPostBtn">📢 نشر المنشور</button>
+</div>
+
+<div id="posts-container" class="news-list"></div>
+
+<script type="module">
+  import { db } from '../chat/js/fb.js';
+  import { ref as dbRef, push, set, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+  // مفتاح Firebase موحد
+  const POSTS_PATH = 'posts';
+
+  const postTitleInput = document.getElementById('post-title');
+  const postContentInput = document.getElementById('post-content');
+  const postAuthorInput = document.getElementById('post-author');
+  const postImageInput = document.getElementById('post-image');
+  const addPostBtn = document.getElementById('addPostBtn');
+  const postsContainer = document.getElementById('posts-container');
+  const uploadProgress = document.getElementById('upload-progress');
+  const progressBar = uploadProgress.querySelector('span');
+
+  let postsData = {};
+  const storage = getStorage();
+  const postsRef = dbRef(db, POSTS_PATH);
+
+  // الاستماع للمنشورات من Firebase
+  onValue(postsRef, (snapshot) => {
+    postsData = snapshot.val() || {};
+    renderPosts();
+  }, (error) => {
+    console.error('خطأ في تحميل البيانات:', error);
+    postsContainer.innerHTML = '<p style="color:white;text-align:center">❌ خطأ في تحميل المنشورات</p>';
+  });
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return 'الآن';
+    if (diff < 3600000) return 'قبل ' + Math.floor(diff / 60000) + ' دقيقة';
+    if (diff < 86400000) return 'قبل ' + Math.floor(diff / 3600000) + ' ساعة';
+    return date.toLocaleDateString('ar-SA');
+  }
+
+  addPostBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const title = postTitleInput.value.trim();
+    const content = postContentInput.value.trim();
+    const author = postAuthorInput.value.trim();
+    const imageFile = postImageInput.files[0];
+
+    if (!title || !content) {
+      alert('⚠️ يرجى إضافة عنوان والمحتوى');
+      return;
+    }
+
+    const newRef = push(postsRef);
+    const id = newRef.key;
+    let imageURL = '';
+
+    if (imageFile) {
+      const storagePath = `posts/${id}_${imageFile.name}`;
+      const sRef = storageRef(storage, storagePath);
+      const uploadTask = uploadBytesResumable(sRef, imageFile);
+
+      uploadProgress.style.display = 'block';
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressBar.style.width = progress + '%';
+        },
+        (error) => {
+          uploadProgress.style.display = 'none';
+          alert('❌ خطأ في رفع الصورة: ' + error.message);
+        },
+        async () => {
+          imageURL = await getDownloadURL(uploadTask.snapshot.ref);
+          savePost(newRef, title, content, author, imageURL);
+        }
+      );
+    } else {
+      savePost(newRef, title, content, author, '');
+    }
+  });
+
+  async function savePost(newRef, title, content, author, imageURL) {
+    const post = {
+      title,
+      text: content,
+      author,
+      image: imageURL || '',
+      createdAt: new Date().toISOString()
+    };
+    
+    try {
+      await set(newRef, post);
+      uploadProgress.style.display = 'none';
+      progressBar.style.width = '0%';
+      alert('✅ تم نشر المنشور بنجاح!');
+      
+      // مسح الحقول
+      postTitleInput.value = '';
+      postContentInput.value = '';
+      postAuthorInput.value = 'Ishraq Step';
+      postImageInput.value = '';
+    } catch (error) {
+      alert('❌ خطأ في النشر: ' + error.message);
+    }
+  }
+
+  function renderPosts() {
+    postsContainer.innerHTML = '';
+    
+    if (!postsData || Object.keys(postsData).length === 0) {
+      postsContainer.innerHTML = '<p style="color:white;text-align:center">🚧 لا توجد منشورات مضافة</p>';
+      return;
+    }
+
+    // ترتيب من الأحدث للأقدم
+    const sortedPosts = Object.entries(postsData).sort((a, b) => {
+      return new Date(b[1].createdAt) - new Date(a[1].createdAt);
+    });
+
+    sortedPosts.forEach(([id, post]) => {
+      const div = document.createElement('div');
+      div.className = 'news-item';
+      
+      let html = `<h3>${escapeHtml(post.title)}</h3>`;
+      if (post.image) {
+        html += `<img src="${escapeHtml(post.image)}" alt="صورة المنشور" onerror="this.src='https://picsum.photos/800/600'">`;
+      }
+      html += `
+        <p>${escapeHtml(post.text)}</p>
+        <p class="small">✍️ ${escapeHtml(post.author || 'مستخدم')} • 📅 ${formatDate(post.createdAt)}</p>
+        <button class="delete-btn" data-id="${id}">🗑️ حذف المنشور</button>
+      `;
+      
+      div.innerHTML = html;
+      const deleteBtn = div.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', () => deletePost(id));
+      postsContainer.appendChild(div);
+    });
+  }
+
+  async function deletePost(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المنشور؟')) return;
+    
+    try {
+      await remove(dbRef(db, `${POSTS_PATH}/${id}`));
+      alert('✅ تم حذف المنشور');
+    } catch (error) {
+      alert('❌ خطأ في الحذف: ' + error.message);
+    }
+  }
+
+</script>
+</body>
+</html>

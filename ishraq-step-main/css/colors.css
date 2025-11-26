@@ -86,13 +86,6 @@
       backdrop-filter: blur(6px);
     }
 
-    .title{
-      font-size:34px;
-      line-height:1.05;
-      margin:0 0 14px 0;
-      font-weight:800;
-      letter-spacing: -0.6px;
-    }
     .subtitle{
       margin:0 0 22px 0;
       color:var(--muted);

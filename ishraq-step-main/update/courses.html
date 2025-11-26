@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📹 نشر الكورسات - Ishraq Step</title>
+<style>
+  body{font-family:Cairo, sans-serif; background: linear-gradient(135deg,#4caf50,#00bcd4); margin:0; padding:20px; color:#333; direction:rtl}
+  h1{text-align:center;color:white; margin-bottom:40px}
+  
+  .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:30px; flex-wrap:wrap}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; transition:all .3s}
+  .nav-btn:hover{transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+  
+  .form{background:white;padding:15px;border-radius:12px;max-width:500px;margin:20px auto;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+  label{display:block;margin-top:10px;font-weight:bold}
+  input,textarea,select{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:6px; box-sizing:border-box}
+  button{background:linear-gradient(90deg,#4caf50,#00bcd4);color:white;border:none;padding:10px;margin-top:15px;width:100%;border-radius:8px;cursor:pointer;font-size:16px; font-weight:600}
+  button:hover{opacity:.95}
+  
+  .sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:20px}
+  .section-card{background:linear-gradient(135deg,#4caf50,#00eeff);color:white;border-radius:14px;text-align:center;padding:14px;cursor:pointer;transition:transform .25s}
+  .section-card:hover{transform:scale(1.05)}
+  .section-card.active{box-shadow:0 6px 18px rgba(0,0,0,.25);outline:3px solid rgba(255,255,255,.06)}
+  
+  .videos-list{margin-top:20px}
+  .video-item{background:white;border-radius:10px;padding:10px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .video-item iframe{width:100%;border-radius:10px}
+  .edit-btn{background:#ff9800;border:none;padding:5px 8px;border-radius:6px;cursor:pointer;color:white;margin-top:5px;margin-left:5px}
+  .delete-btn{background:#f44336;border:none;padding:5px 8px;border-radius:6px;cursor:pointer;color:white;margin-top:5px}
+</style>
+</head>
+<body>
+
+<h1>📹 نشر الكورسات</h1>
+
+<div class="nav-buttons">
+  <a href="courses.html" class="nav-btn" style="background:#4caf50; color:white;">📹 الكورسات</a>
+  <a href="books.html" class="nav-btn">📘 الكتب</a>
+  <a href="news.html" class="nav-btn">📰 الأخبار</a>
+</div>
+
+<div class="form">
+  <label>العنوان:</label>
+  <input id="title" type="text">
+
+  <label>الوصف:</label>
+  <textarea id="description"></textarea>
+
+  <label>رابط YouTube (أو ID أو iframe):</label>
+  <input id="url" type="text" placeholder="https://www.youtube.com/watch?v=XXXXXXX">
+
+  <label>القسم:</label>
+  <select id="type">
+    <option value="">اختر القسم</option>
+    <option value="ماث 0">🧮 ماث 0</option>
+    <option value="ماث 1">🧮 ماث 1</option>
+    <option value="انجليزي">🇬🇧 إنجليزي</option>
+    <option value="دوائر كهربائية">🔌 دوائر كهربائية</option>
+    <option value="اخلاقيات المهنه">⚖️ أخلاقيات المهنة</option>
+    <option value="مقدمة حاسب الي">💻 مقدمة حاسب آلي</option>
+    <option value="فيزياء">🧲 فيزياء</option>
+  </select>
+
+  <button id="addBtn">➕ إضافة الفيديو</button>
+</div>
+
+<h2 style="color:white; text-align:center;">📚 الأقسام</h2>
+<div id="sections-container" class="sections"></div>
+<div id="videos-container" class="videos-list"></div>
+
+<script type="module">
+  import { db } from '../chat/js/fb.js';
+  import { ref as dbRef, push, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+  const titleInput = document.getElementById('title');
+  const descInput = document.getElementById('description');
+  const urlInput = document.getElementById('url');
+  const typeSelect = document.getElementById('type');
+  const addBtn = document.getElementById('addBtn');
+  const sectionsContainer = document.getElementById('sections-container');
+  const videosContainer = document.getElementById('videos-container');
+
+  let jsonData = {};
+  const sections = ["ماث 0","ماث 1","انجليزي","دوائر كهربائية","اخلاقيات المهنه","مقدمة حاسب الي","فيزياء"];
+
+  let editMode = false;
+  let editId = null;
+
+  function initSections(){
+    sectionsContainer.innerHTML = '';
+    sections.forEach(type=>{
+      if(!jsonData[type]) jsonData[type] = {};
+      const card = document.createElement('div');
+      card.className = 'section-card';
+      card.textContent = type;
+      card.addEventListener('click', ()=> showSection(type));
+      sectionsContainer.appendChild(card);
+    });
+  }
+
+  initSections();
+
+  const coursesRef = dbRef(db, 'courses');
+  onValue(coursesRef, snapshot=>{
+    const flat = snapshot.val() || {};
+    jsonData = {};
+    sections.forEach(s => jsonData[s] = {});
+    for(const id in flat){
+      const item = flat[id];
+      if(!item.type) item.type = sections[0];
+      if(!jsonData[item.type]) jsonData[item.type] = {};
+      jsonData[item.type][id] = item;
+    }
+    initSections();
+  });
+
+  function convertUrl(link){
+    if(!link) return '';
+    const iframeMatch = link.match(/src\s*=\s*["']([^"']+)["']/i);
+    if(iframeMatch) return iframeMatch[1].split('?')[0];
+    if(link.includes('youtube.com/embed/')) return link.split('?')[0];
+    if(/^[A-Za-z0-9_-]{11}$/.test(link)) return `https://www.youtube.com/embed/${link}`;
+    let m = link.match(/[?&]v=([^&]+)/);
+    if(m) return `https://www.youtube.com/embed/${m[1]}`;
+    m = link.match(/youtu\.be\/([^?&]+)/);
+    if(m) return `https://www.youtube.com/embed/${m[1]}`;
+    return '';
+  }
+
+  function escapeHtml(s){
+    return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showSection(type){
+    document.querySelectorAll('.section-card').forEach(c=>{ c.classList.remove('active'); if(c.textContent===type) c.classList.add('active'); });
+    videosContainer.innerHTML = '';
+    const section = jsonData[type];
+    if(!section || Object.keys(section).length===0){
+      videosContainer.innerHTML = '<p style="color:white;">🚧 لا توجد فيديوهات مضافة</p>';
+      return;
+    }
+    Object.values(section).forEach(video=>{
+      const div = document.createElement('div');
+      div.className = 'video-item';
+      div.innerHTML = `
+        <iframe src="${escapeHtml(video.url)}" allowfullscreen></iframe>
+        <h3>${escapeHtml(video.title)}</h3>
+        <p>${escapeHtml(video.description)}</p>
+        <button class="edit-btn" data-id="${escapeHtml(video.id)}">✏️ تعديل</button>
+        <button class="delete-btn" data-id="${escapeHtml(video.id)}">🗑️ حذف</button>
+      `;
+      const editBtn = div.querySelector('.edit-btn');
+      editBtn.addEventListener('click', ()=> editVideo(video.type, video.id));
+      const deleteBtn = div.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', ()=> deleteVideo(video.type, video.id));
+      videosContainer.appendChild(div);
+    });
+  }
+
+  function editVideo(type, id){
+    const video = jsonData[type] && jsonData[type][id];
+    if(!video) { alert('⚠️ الفيديو غير موجود'); return; }
+    titleInput.value = video.title;
+    descInput.value = video.description;
+    urlInput.value = video.url;
+    typeSelect.value = video.type;
+    editMode = true;
+    editId = id;
+    addBtn.textContent = '💾 حفظ التعديل';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  addBtn.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const description = descInput.value.trim();
+    const raw = urlInput.value.trim();
+    const url = convertUrl(raw);
+    const type = typeSelect.value;
+
+    if(!title || !description || !url || !type){
+      alert('⚠️ يرجى ملء جميع الحقول');
+      return;
+    }
+
+    if(editMode && editId){
+      const video = { title, description, url, type, id: editId };
+      await set(dbRef(db, `courses/${editId}`), video);
+      editMode = false;
+      editId = null;
+      addBtn.textContent = '➕ إضافة الفيديو';
+      alert('✅ تم حفظ التعديل');
+    } else {
+      const newRef = push(coursesRef);
+      const id = newRef.key;
+      const video = { title, description, url, type, id };
+      await set(newRef, video);
+      alert('✅ تم إضافة الفيديو');
+    }
+
+    titleInput.value='';
+    descInput.value='';
+    urlInput.value='';
+    typeSelect.value='';
+  });
+
+  async function deleteVideo(type, id){
+    if(!confirm('هل أنت متأكد من حذف هذا الفيديو؟')) return;
+    try {
+      await set(dbRef(db, `courses/${id}`), null);
+      alert('✅ تم حذف الفيديو');
+      showSection(type);
+    } catch(error){
+      alert('❌ حدث خطأ في الحذف: ' + error.message);
+    }
+  }
+
+</script>
+</body>
+</html>

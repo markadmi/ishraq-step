@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📘 نشر الكتب - Ishraq Step</title>
+<style>
+  body{font-family:Cairo, sans-serif; background: linear-gradient(135deg,#4caf50,#00bcd4); margin:0; padding:20px; color:#333; direction:rtl}
+  h1{text-align:center;color:white; margin-bottom:40px}
+  
+  .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:30px; flex-wrap:wrap}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; transition:all .3s}
+  .nav-btn:hover{transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+  
+  .form{background:white;padding:15px;border-radius:12px;max-width:500px;margin:20px auto;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+  label{display:block;margin-top:10px;font-weight:bold}
+  input,textarea{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:6px; box-sizing:border-box}
+  button{background:linear-gradient(90deg,#4caf50,#00bcd4);color:white;border:none;padding:10px;margin-top:15px;width:100%;border-radius:8px;cursor:pointer;font-size:16px; font-weight:600}
+  button:hover{opacity:.95}
+  
+  .books-list{margin-top:20px}
+  .book-item{background:white;border-radius:10px;padding:10px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .delete-btn{background:#f44336;border:none;padding:5px 8px;border-radius:6px;cursor:pointer;color:white;margin-top:5px}
+  .small{font-size:13px;color:#555;margin-top:6px}
+  .progress{height:8px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px}
+  .progress > span{display:block;height:100%;background:linear-gradient(90deg,#4caf50,#00bcd4);width:0%}
+</style>
+</head>
+<body>
+
+<h1>📘 نشر الكتب</h1>
+
+<div class="nav-buttons">
+  <a href="courses.html" class="nav-btn">📹 الكورسات</a>
+  <a href="books.html" class="nav-btn" style="background:#4caf50; color:white;">📘 الكتب</a>
+  <a href="news.html" class="nav-btn">📰 الأخبار</a>
+</div>
+
+<div class="form">
+  <label>عنوان الكتاب:</label>
+  <input id="book-title" type="text">
+
+  <label>وصف الكتاب (اختياري):</label>
+  <textarea id="book-description"></textarea>
+
+  <label>ملف الكتاب (PDF أو epub):</label>
+  <input id="book-file" type="file" accept=".pdf,.epub">
+
+  <div class="progress" id="book-upload-progress" style="display:none"><span></span></div>
+
+  <button id="addBookBtn">📤 رفع الكتاب</button>
+</div>
+
+<div id="books-container" class="books-list"></div>
+
+<script type="module">
+  import { db } from '../chat/js/fb.js';
+  import { ref as dbRef, push, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+  const bookTitleInput = document.getElementById('book-title');
+  const bookDescriptionInput = document.getElementById('book-description');
+  const bookFileInput = document.getElementById('book-file');
+  const addBookBtn = document.getElementById('addBookBtn');
+  const booksContainer = document.getElementById('books-container');
+  const bookProgress = document.getElementById('book-upload-progress');
+
+  let booksData = {};
+  const storage = getStorage();
+  const booksRef = dbRef(db, 'books');
+
+  onValue(booksRef, snapshot=>{
+    booksData = snapshot.val() || {};
+    showBooks();
+  });
+
+  function escapeHtml(s){
+    return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  addBookBtn.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const title = bookTitleInput.value.trim();
+    const description = bookDescriptionInput.value.trim();
+    const file = bookFileInput.files[0];
+
+    if(!title || !file){
+      alert('⚠️ يرجى إضافة عنوان والملف');
+      return;
+    }
+
+    const newRef = push(booksRef);
+    const id = newRef.key;
+    const storagePath = `books/${id}_${file.name}`;
+    const sRef = storageRef(storage, storagePath);
+    const uploadTask = uploadBytesResumable(sRef, file);
+
+    bookProgress.style.display = 'block';
+    const bar = bookProgress.querySelector('span');
+
+    uploadTask.on('state_changed',
+      (snapshot)=>{
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        bar.style.width = progress + '%';
+      },
+      (err)=>{
+        bookProgress.style.display = 'none';
+        alert('❌ خطأ في رفع الملف: ' + err.message);
+      },
+      async ()=>{
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        const book = { title, description: description || '', url: downloadURL };
+        await set(newRef, book);
+        bookProgress.style.display = 'none';
+        bar.style.width = '0%';
+        alert('✅ تم رفع الكتاب');
+        bookTitleInput.value = '';
+        bookDescriptionInput.value = '';
+        bookFileInput.value = '';
+      }
+    );
+  });
+
+  function showBooks(){
+    booksContainer.innerHTML = '';
+    if(!booksData || Object.keys(booksData).length === 0){
+      booksContainer.innerHTML = '<p style="color:white;">🚧 لا توجد كتب مضافة</p>';
+      return;
+    }
+    Object.entries(booksData).forEach(([id, b])=>{
+      const div = document.createElement('div');
+      div.className = 'book-item';
+      div.innerHTML = `
+        <h3>${escapeHtml(b.title)}</h3>
+        <p class="small">${escapeHtml(b.description || '')}</p>
+        <a href="${escapeHtml(b.url)}" target="_blank">🔗 تحميل / فتح الكتاب</a>
+        <button class="delete-btn" data-id="${escapeHtml(id)}">🗑️ حذف الكتاب</button>
+      `;
+      const del = div.querySelector('.delete-btn');
+      del.addEventListener('click', ()=> deleteBook(id));
+      booksContainer.appendChild(div);
+    });
+  }
+
+  async function deleteBook(id){
+    if(!confirm('هل أنت متأكد من حذف هذا الكتاب؟')) return;
+    try {
+      await set(dbRef(db, `books/${id}`), null);
+      alert('✅ تم حذف الكتاب');
+    } catch(err){
+      alert('❌ خطأ في الحذف: ' + err.message);
+    }
+  }
+
+</script>
+</body>
+</html>
