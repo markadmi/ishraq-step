@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link href="css/buttons.css" rel="stylesheet">
   <link rel="icon" href="icon.jpg" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body { font-family: 'Cairo', sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; direction: rtl; }
     header { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 30px; color: #333; }
@@ -29,6 +30,9 @@
     .loading { text-align: center; font-size: 18px; color: #666; padding: 40px; }
     .error { text-align: center; font-size: 18px; color: #d32f2f; padding: 40px; }
     @media (max-width: 600px) { .book-header { flex-direction: column; } .book-cover { flex: 0 0 auto; } .book-title { font-size: 22px; } }
+    .qr-section { text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 8px; }
+    .qr-section h3 { margin: 0 0 15px 0; color: #333; }
+    #qrcode { display: inline-block; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   </style>
 </head>
 
@@ -96,7 +100,23 @@
               <div class="section-content">${esc(book.content)}</div>
             </div>
           ` : ''}
+          <div class="qr-section">
+            <h3>مشاركة الكتاب</h3>
+            <div id="qrcode"></div>
+            <p style="margin-top:15px;color:#666;font-size:14px">امسح الكود للوصول المباشر للكتاب</p>
+          </div>
         `;
+        // تنفيذ QR Code بعد تحديث HTML
+        setTimeout(() => {
+          new QRCode(document.getElementById("qrcode"), {
+            text: window.location.href,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }, 100);
       }).catch(err => {
         contentDiv.innerHTML = '<div class="error">حدث خطأ في تحميل الكتاب</div>';
         console.error(err);
