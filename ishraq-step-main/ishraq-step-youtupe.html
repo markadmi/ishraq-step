@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ishraq Step - الدروس المرئية</title>
 <link rel="stylesheet" href="css/video.css">
-<link rel="icon" href="icon.jpg" type="image/x-icon">
+<link rel="icon" href="icon.png" type="image/x-icon">
 <style>
   .sections {
     display: grid;
@@ -13,6 +13,28 @@
     gap: 10px;
     padding: 15px;
   }
+  /* Loader */
+  .loader {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+    padding: 18px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 10px;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .spinner {
+    width:18px;
+    height:18px;
+    border:3px solid #ddd;
+    border-top-color:#4caf50;
+    border-radius:50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .section-card {
     background: linear-gradient(135deg, #4caf50, #00eeff);
@@ -65,7 +87,7 @@
      crossorigin="anonymous">
       </script>
 </head>
-<body>
+ <body>
 
 <header>📚 Ishraq Step - الدروس المرئية</header>
 
@@ -84,13 +106,17 @@
 <div id="videos-container">
   <button class="back-btn">⬅️ رجوع إلى الأقسام</button>
   <h2 id="section-title"></h2>
+
+  <!-- loader: يظهر عند تحميل الفيديوهات -->
+  <div id="loader" class="loader"><div class="spinner" aria-hidden="true"></div><div>الرجاء الانتظار...</div></div>
+
   <div id="videos-list"></div>
 </div>
 
 <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
 
 <!-- Firebase -->
-<script type="module">
+ <script type="module">
   import { db } from './chat/js/fb.js';
   import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -117,29 +143,46 @@
 
   // 🟢 عرض الفيديوهات الخاصة بقسم معين
   function showSectionVideos(type) {
+    // إظهار واجهة الفيديو وقول الرجاء الانتظار
     sectionsContainer.style.display = 'none';
     videosContainer.style.display = 'block';
     sectionTitle.textContent = `🎓 ${type}`;
-
     videosList.innerHTML = '';
+    showLoader(true);
 
-    const filtered = Object.values(coursesData).filter(item => item.type === type);
+    // ننتظر إطار واحد لتحديث الواجهة ثم نعالج البيانات (يحسّن ظهور الـ loader)
+    requestAnimationFrame(() => {
+      const all = Object.values(coursesData || {});
+      const filtered = all.filter(item => item.type === type);
 
-    if (filtered.length === 0) {
-      videosList.innerHTML = '<p>🚧 لا توجد فيديوهات بعد لهذا القسم</p>';
-      return;
-    }
+      if (filtered.length === 0) {
+        videosList.innerHTML = '<p>🚧 لا توجد فيديوهات بعد لهذا القسم</p>';
+        // إيقاف الـ loader لأن لا توجد فيديوهات
+        showLoader(false);
+        return;
+      }
 
-    filtered.forEach(video => {
-      const div = document.createElement('div');
-      div.className = 'video';
-      div.innerHTML = `
-        <iframe src="${video.url}" allowfullscreen></iframe>
-        <h2>${video.title}</h2>
-        <p>${video.description}</p>
-      `;
-      videosList.appendChild(div);
+      filtered.forEach(video => {
+        const div = document.createElement('div');
+        div.className = 'video';
+        div.innerHTML = `
+          <iframe src="${video.url}" allowfullscreen></iframe>
+          <h2>${video.title}</h2>
+          <p>${video.description}</p>
+        `;
+        videosList.appendChild(div);
+      });
+
+      // بعد إضافة الفيديوهات إخفاء الـ loader
+      showLoader(false);
     });
+  }
+
+  // دوال مساعدة للتحكم في الـ loader
+  function showLoader(show){
+    const loader = document.getElementById('loader');
+    if(!loader) return;
+    loader.style.display = show ? 'flex' : 'none';
   }
 
   // 🔙 زر الرجوع إلى الأقسام
@@ -148,9 +191,9 @@
     sectionsContainer.style.display = 'grid';
     sectionTitle.textContent = '';
     videosList.innerHTML = '';
+    showLoader(false);
   });
-</script>
+ </script>
 
-</body>
-</html>
-
+ </body>
+</html> 

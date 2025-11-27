@@ -122,7 +122,8 @@
     /* Buttons */
     .actions{
       display:flex;
-      gap:16px;
+      flex-direction: column; /* جعل الأزرار تحت بعضها */
+      gap:16px; /* المسافة بين الأزرار */
       margin-top:8px;
       align-items:center;
       flex-wrap:wrap;
