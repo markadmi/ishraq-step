@@ -103,19 +103,51 @@
           <div class="qr-section">
             <h3>مشاركة الكتاب</h3>
             <div id="qrcode"></div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button id="shareBtn" class="download-btn" type="button">🔗 مشاركة</button>
+              <button id="copyBtn" class="download-btn" type="button">📋 نسخ الرابط</button>
+            </div>
+            <p id="linkText" style="margin-top:8px;color:#666;font-size:14px;display:none;word-break:break-all"></p>
             <p style="margin-top:15px;color:#666;font-size:14px">امسح الكود للوصول المباشر للكتاب</p>
           </div>
         `;
-        // تنفيذ QR Code بعد تحديث HTML
+        // تنفيذ QR Code + إعداد الأزرار بعد تحديث HTML
         setTimeout(() => {
-          new QRCode(document.getElementById("qrcode"), {
-            text: window.location.href,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-          });
+          const qEl = document.getElementById("qrcode");
+          const url = window.location.href;
+          if (qEl && window.QRCode) {
+            new QRCode(qEl, { text: url, width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+          }
+          const shareBtn = document.getElementById('shareBtn');
+          const copyBtn = document.getElementById('copyBtn');
+          const linkText = document.getElementById('linkText');
+
+          if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+              try {
+                if (navigator.share) {
+                  await navigator.share({ title: book.title || 'تفاصيل كتاب', text: book.title || '', url });
+                } else {
+                  linkText.textContent = url;
+                  linkText.style.display = 'block';
+                }
+              } catch (e) { /* تجاهل إلغاء المشاركة */ }
+            });
+          }
+
+          if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+              try {
+                await navigator.clipboard.writeText(url);
+                copyBtn.textContent = '✅ تم النسخ';
+                setTimeout(() => { copyBtn.textContent = '📋 نسخ الرابط'; }, 2000);
+              } catch (e) {
+                // بديل: عرض الرابط للاستخدام اليدوي إذا فشل النسخ
+                linkText.textContent = url;
+                linkText.style.display = 'block';
+              }
+            });
+          }
         }, 100);
       }).catch(err => {
         contentDiv.innerHTML = '<div class="error">حدث خطأ في تحميل الكتاب</div>';
