@@ -37,7 +37,8 @@
 <div class="nav-buttons">
   <a href="courses.html" class="nav-btn" style="background:#4caf50; color:white;">📹 الكورسات</a>
   <a href="books.html" class="nav-btn">📘 الكتب</a>
-  <a href="news.html" class="nav-btn">📰 الأخبار</a>
+  <a href="tests.html" class="nav-btn">الاختبارات</a>
+  <a href="../index.html" class="nav-btn">🏠 الرئيسية</a>
 </div>
 
 <div class="form">
@@ -62,6 +63,10 @@
     <option value="فيزياء">🧲 فيزياء</option>
   </select>
 
+  <!-- جديد: حقل القسم الفرعي -->
+  <label>القسم الفرعي (مثال: حروف الجر):</label>
+  <input id="subsection" type="text" placeholder="مثال: حروف الجر">
+  
   <button id="addBtn">➕ إضافة الفيديو</button>
 </div>
 
@@ -72,11 +77,12 @@
 <script type="module">
   import { db } from '../chat/js/fb.js';
   import { ref as dbRef, push, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
+  
   const titleInput = document.getElementById('title');
   const descInput = document.getElementById('description');
   const urlInput = document.getElementById('url');
   const typeSelect = document.getElementById('type');
+  const subsectionInput = document.getElementById('subsection'); // جديد
   const addBtn = document.getElementById('addBtn');
   const sectionsContainer = document.getElementById('sections-container');
   const videosContainer = document.getElementById('videos-container');
@@ -109,6 +115,7 @@
     for(const id in flat){
       const item = flat[id];
       if(!item.type) item.type = sections[0];
+      if(!item.subsection) item.subsection = ''; // تأكد من وجود الحقل
       if(!jsonData[item.type]) jsonData[item.type] = {};
       jsonData[item.type][id] = item;
     }
@@ -165,6 +172,7 @@
     descInput.value = video.description;
     urlInput.value = video.url;
     typeSelect.value = video.type;
+    subsectionInput.value = video.subsection || ''; // جديد
     editMode = true;
     editId = id;
     addBtn.textContent = '💾 حفظ التعديل';
@@ -178,6 +186,7 @@
     const raw = urlInput.value.trim();
     const url = convertUrl(raw);
     const type = typeSelect.value;
+    const subsection = subsectionInput.value.trim(); // جديد
 
     if(!title || !description || !url || !type){
       alert('⚠️ يرجى ملء جميع الحقول');
@@ -185,7 +194,7 @@
     }
 
     if(editMode && editId){
-      const video = { title, description, url, type, id: editId };
+      const video = { title, description, url, type, subsection, id: editId };
       await set(dbRef(db, `courses/${editId}`), video);
       editMode = false;
       editId = null;
@@ -194,7 +203,7 @@
     } else {
       const newRef = push(coursesRef);
       const id = newRef.key;
-      const video = { title, description, url, type, id };
+      const video = { title, description, url, type, subsection, id };
       await set(newRef, video);
       alert('✅ تم إضافة الفيديو');
     }
@@ -203,6 +212,7 @@
     descInput.value='';
     urlInput.value='';
     typeSelect.value='';
+    subsectionInput.value=''; // جديد: افراغ الحقل
   });
 
   async function deleteVideo(type, id){

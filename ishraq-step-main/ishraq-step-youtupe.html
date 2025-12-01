@@ -110,6 +110,9 @@
   <!-- loader: يظهر عند تحميل الفيديوهات -->
   <div id="loader" class="loader"><div class="spinner" aria-hidden="true"></div><div>الرجاء الانتظار...</div></div>
 
+  <!-- جديد: قائمة الأقسام الفرعية -->
+  <div id="subsections-list" style="display:none; padding:12px; gap:10px;"></div>
+
   <div id="videos-list"></div>
 </div>
 
@@ -125,6 +128,7 @@
   const videosList = document.getElementById('videos-list');
   const sectionTitle = document.getElementById('section-title');
   const backBtn = document.querySelector('.back-btn');
+  const subsectionsList = document.getElementById('subsections-list'); // جديد
 
   let coursesData = {};
 
@@ -143,38 +147,76 @@
 
   // 🟢 عرض الفيديوهات الخاصة بقسم معين
   function showSectionVideos(type) {
-    // إظهار واجهة الفيديو وقول الرجاء الانتظار
     sectionsContainer.style.display = 'none';
     videosContainer.style.display = 'block';
     sectionTitle.textContent = `🎓 ${type}`;
     videosList.innerHTML = '';
+    subsectionsList.innerHTML = '';
+    subsectionsList.style.display = 'none';
     showLoader(true);
 
-    // ننتظر إطار واحد لتحديث الواجهة ثم نعالج البيانات (يحسّن ظهور الـ loader)
     requestAnimationFrame(() => {
       const all = Object.values(coursesData || {});
       const filtered = all.filter(item => item.type === type);
 
       if (filtered.length === 0) {
         videosList.innerHTML = '<p>🚧 لا توجد فيديوهات بعد لهذا القسم</p>';
-        // إيقاف الـ loader لأن لا توجد فيديوهات
         showLoader(false);
         return;
       }
 
-      filtered.forEach(video => {
-        const div = document.createElement('div');
-        div.className = 'video';
-        div.innerHTML = `
-          <iframe src="${video.url}" allowfullscreen></iframe>
-          <h2>${video.title}</h2>
-          <p>${video.description}</p>
-        `;
-        videosList.appendChild(div);
-      });
+      // جمع الأقسام الفرعية (subsection)
+      const subs = Array.from(new Set(filtered.map(v => (v.subsection||'بدون قسم فرعي').trim())));
 
-      // بعد إضافة الفيديوهات إخفاء الـ loader
+      if(subs.length > 1 || (subs.length===1 && subs[0] !== '')) {
+        // عرض قائمة الأقسام الفرعية أولاً
+        subsectionsList.style.display = 'flex';
+        subsectionsList.style.flexWrap = 'wrap';
+        subsectionsList.style.gap = '10px';
+        // زر لعرض الكل
+        const allBtn = document.createElement('div');
+        allBtn.className = 'section-card';
+        allBtn.textContent = '🟢 عرض الكل';
+        allBtn.addEventListener('click', ()=> renderVideos(filtered));
+        subsectionsList.appendChild(allBtn);
+
+        subs.forEach(s => {
+          const label = s || 'بدون قسم فرعي';
+          const card = document.createElement('div');
+          card.className = 'section-card';
+          card.textContent = label;
+          card.addEventListener('click', ()=> {
+            const items = filtered.filter(v => ((v.subsection||'').trim() || 'بدون قسم فرعي') === label);
+            renderVideos(items);
+          });
+          subsectionsList.appendChild(card);
+        });
+
+        // افتراضيًا نعرض الكل
+        renderVideos(filtered);
+        showLoader(false);
+        return;
+      }
+
+      // حالة وجود قسم فرعي واحد فقط أو لا أقسام فرعية
+      renderVideos(filtered);
       showLoader(false);
+    });
+  }
+
+  function renderVideos(list){
+    videosList.innerHTML = '';
+    list.forEach(video => {
+      const div = document.createElement('div');
+      div.className = 'video';
+      const subLabel = (video.subsection || '').trim();
+      div.innerHTML = `
+        <iframe src="${video.url}" allowfullscreen></iframe>
+        <h2>${video.title}</h2>
+        ${ subLabel ? `<h3 style="color:#4caf50;">${subLabel}</h3>` : '' }
+        <p>${video.description}</p>
+      `;
+      videosList.appendChild(div);
     });
   }
 
@@ -196,4 +238,4 @@
  </script>
 
  </body>
-</html> 
+</html>

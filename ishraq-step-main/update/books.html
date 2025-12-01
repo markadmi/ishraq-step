@@ -24,11 +24,23 @@
   .small{font-size:12px;color:#666}
   .progress{height:8px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px;display:none}
   .progress > span{display:block;height:100%;background:linear-gradient(90deg,#4caf50,#00bcd4);width:0%}
+
+  /* navigation buttons */
+  .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+  .nav-btn.active{background:#4caf50;color:#fff}
 </style>
 </head>
 <body>
   <div class="card">
     <h2>لوحة نشر الكتب (أدمن)</h2>
+
+    <div class="nav-buttons">
+      <a href="courses.html" class="nav-btn">📹 الكورسات</a>
+      <a href="books.html" class="nav-btn active">📘 الكتب</a>
+      <a href="tests.html" class="nav-btn">الاختبارات</a>
+      <a href="../index.html" class="nav-btn">🏠 الرئيسية</a>
+    </div>
 
     <label>معرّف الكتاب (لتعديل موجود):</label>
     <input id="bookId" placeholder="اتركها فارغة لإنشاء جديد">
@@ -50,11 +62,11 @@
         <label>التصنيف:</label>
         <input id="category" placeholder="مثال: برمجة">
       </div>
-      <!-- حقولا الصفحات والحجم أُزيلت من الفورم — القيم ستُخزن في متغيرات محسوبة -->
+      <div>
+        <label>التقييم (0-5):</label>
+        <input id="rating" type="number" min="0" max="5" step="0.1" value="0">
+      </div>
     </div>
-
-    <label>التقييم (0-5):</label>
-    <input id="rating" type="number" min="0" max="5" step="0.1" value="0">
 
     <div class="row" style="margin-top:8px">
       <div>
@@ -101,11 +113,10 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     }
   </script>
-  <!-- fallback: تحديث حقل الحجم عند اختيار الملف حتى لو فشل سكربت الـ module -->
+
   <script>
     (function(){
       const bookFileEl = document.getElementById('bookFile');
-      // نستخدم متغيرات عالمية لتخزين القيم المحسوبة
       window.computedPages = window.computedPages ?? null;
       window.computedSize = window.computedSize ?? '';
       function formatBytes(bytes, decimals = 1) {
@@ -119,9 +130,7 @@
       if (bookFileEl) {
         bookFileEl.addEventListener('change', () => {
           const f = bookFileEl.files[0];
-          // خزّن الحجم في متغير عالمي
           window.computedSize = f ? formatBytes(f.size, 1) : '';
-          // إذا كان PDF وحمّلت مكتبة pdf.js فحاول حساب عدد الصفحات واحفظها عالمياً
           if (f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) && window.pdfjsLib) {
             const reader = new FileReader();
             reader.onload = function(e){
@@ -152,189 +161,183 @@
   
   <script type="module">
   import { db, storage } from '../chat/js/fb.js';
-   import { ref as dbRef, push, set, update, get, child, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-   import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
- 
-   const BOOKS_PATH = 'books';
-   const bookIdEl = document.getElementById('bookId');
-   const titleEl = document.getElementById('title');
-   const authorEl = document.getElementById('author');
-   const descriptionEl = document.getElementById('description');
-   const detailsEl = document.getElementById('details');
-   const categoryEl = document.getElementById('category');
-   // القيم المحسوبة تُقرأ من window.computedPages / window.computedSize
-   const ratingEl = document.getElementById('rating');
-   const coverFileEl = document.getElementById('coverFile');
-   const bookFileEl = document.getElementById('bookFile');
-   const saveBtn = document.getElementById('saveBtn');
-   const clearBtn = document.getElementById('clearBtn');
-   const previewArea = document.getElementById('previewArea');
-   const pvTitle = document.getElementById('pvTitle');
-   const pvCover = document.getElementById('pvCover');
-   const pvAuthor = document.getElementById('pvAuthor');
-   const pvCategory = document.getElementById('pvCategory');
-   const pvPages = document.getElementById('pvPages');
-   const pvRating = document.getElementById('pvRating');
-   const pvDescription = document.getElementById('pvDescription');
-   const pvDetails = document.getElementById('pvDetails');
-   const pvFileLink = document.getElementById('pvFileLink');
-   const booksList = document.getElementById('booksList');
-   const uploadProgress = document.getElementById('uploadProgress');
-   const progressBar = uploadProgress.querySelector('span');
+  import { ref as dbRef, push, set, update, get, child, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  import { ref as sRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
-   function nowIso(){ return new Date().toISOString(); }
-   function esc(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+  const BOOKS_PATH = 'books';
+  const bookIdEl = document.getElementById('bookId');
+  const titleEl = document.getElementById('title');
+  const authorEl = document.getElementById('author');
+  const descriptionEl = document.getElementById('description');
+  const detailsEl = document.getElementById('details');
+  const categoryEl = document.getElementById('category');
+  const ratingEl = document.getElementById('rating');
+  const coverFileEl = document.getElementById('coverFile');
+  const bookFileEl = document.getElementById('bookFile');
+  const saveBtn = document.getElementById('saveBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const previewArea = document.getElementById('previewArea');
+  const pvTitle = document.getElementById('pvTitle');
+  const pvCover = document.getElementById('pvCover');
+  const pvAuthor = document.getElementById('pvAuthor');
+  const pvCategory = document.getElementById('pvCategory');
+  const pvPages = document.getElementById('pvPages');
+  const pvRating = document.getElementById('pvRating');
+  const pvDescription = document.getElementById('pvDescription');
+  const pvDetails = document.getElementById('pvDetails');
+  const pvFileLink = document.getElementById('pvFileLink');
+  const booksList = document.getElementById('booksList');
+  const uploadProgress = document.getElementById('uploadProgress');
+  const progressBar = uploadProgress.querySelector('span');
 
-   clearBtn.addEventListener('click', () => {
-     bookIdEl.value=''; titleEl.value=''; authorEl.value='Ishraq Step'; descriptionEl.value=''; detailsEl.value=''; categoryEl.value=''; ratingEl.value='0';
-     coverFileEl.value=''; bookFileEl.value=''; previewArea.hidden=true;
-   });
+  function nowIso(){ return new Date().toISOString(); }
+  function esc(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-   const booksRef = dbRef(db, BOOKS_PATH);
-   onValue(booksRef, snapshot => {
-     const data = snapshot.val() || {};
-     renderBooksList(data);
-   }, err => {
-     booksList.innerHTML = '<div class="small">خطأ في تحميل الكتب</div>';
-     console.error(err);
-   });
+  clearBtn.addEventListener('click', () => {
+    bookIdEl.value=''; titleEl.value=''; authorEl.value='Ishraq Step'; descriptionEl.value=''; detailsEl.value=''; categoryEl.value=''; ratingEl.value='0';
+    coverFileEl.value=''; bookFileEl.value=''; previewArea.hidden=true;
+  });
 
-   function renderBooksList(data){
-     const entries = Object.entries(data || {});
-     if(!entries.length){ booksList.innerHTML = '<div class="small">لا توجد كتب مضافة</div>'; return; }
-     booksList.innerHTML = '';
-     entries.sort((a,b)=> new Date(b[1].createdAt||0) - new Date(a[1].createdAt||0));
-     entries.forEach(([id, book])=>{
-       const div = document.createElement('div');
-       div.className = 'list-item';
-       div.innerHTML = `
-         <img src="${esc(book.coverUrl || 'https://picsum.photos/120/160')}" style="width:80px;height:110px;object-fit:cover;border-radius:6px">
-         <div class="meta">
-           <div style="display:flex;justify-content:space-between;align-items:center">
-             <div><strong>${esc(book.title||'بدون عنوان')}</strong><div class="small">${esc(book.author||'')}</div></div>
-             <div class="small">${new Date(book.createdAt||0).toLocaleString('ar-SA')||''}</div>
-           </div>
-           <div class="small" style="margin-top:6px">${esc(book.description||'')}</div>
-         </div>
-         <div style="display:flex;flex-direction:column;gap:6px">
-           <button class="primary" data-id="${esc(id)}" data-action="edit">تعديل</button>
-           <button data-id="${esc(id)}" data-action="delete" style="background:#f44336;color:white;border-radius:6px;padding:6px 8px">حذف</button>
-           <a href="../book.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">معاينة</a>
-         </div>
-       `;
-       const editBtn = div.querySelector('[data-action="edit"]');
-       const delBtn = div.querySelector('[data-action="delete"]');
-       editBtn.addEventListener('click', ()=> loadBookIntoForm(id));
-       delBtn.addEventListener('click', ()=> deleteBook(id));
-       booksList.appendChild(div);
-     });
-   }
+  const booksRef = dbRef(db, BOOKS_PATH);
+  onValue(booksRef, snapshot => {
+    const data = snapshot.val() || {};
+    renderBooksList(data);
+  }, err => {
+    booksList.innerHTML = '<div class="small">خطأ في تحميل الكتب</div>';
+    console.error(err);
+  });
 
-   async function loadBookIntoForm(id){
-     try{
-       const snap = await get(child(dbRef(db), `${BOOKS_PATH}/${id}`));
-       if(!snap.exists()){ alert('لم يتم العثور على كتاب'); return; }
-       const b = snap.val();
-       bookIdEl.value = id;
-       titleEl.value = b.title || '';
-       authorEl.value = b.author || '';
-       descriptionEl.value = b.description || '';
-       detailsEl.value = b.details || '';
-       categoryEl.value = b.category || '';
-       // خزّن القيم المحفوظة في المتغيرات العالمية لتُستخدم عند الحفظ
-       window.computedPages = b.pages ?? null;
-       window.computedSize = b.size || '';
-       ratingEl.value = b.rating ?? 0;
-       pvCover.src = b.coverUrl || '';
-       pvTitle.textContent = b.title || '';
-       pvAuthor.textContent = 'المؤلف: ' + (b.author || '');
-       pvCategory.textContent = 'القسم: ' + (b.category || '');
-       // عرض الصفحات والحجم من المتغيرات المحسوبة
-       pvPages.textContent = 'الصفحات: ' + (window.computedPages ?? '—') + (window.computedSize ? ' • الحجم: ' + window.computedSize : '');
-       pvRating.textContent = 'التقييم: ' + (b.rating ?? 0);
-       pvDescription.textContent = b.description || '';
-       pvDetails.innerHTML = b.details || '';
-       pvFileLink.href = b.fileUrl || '#';
-       previewArea.hidden = false;
-       window.scrollTo({top:0,behavior:'smooth'});
-     }catch(err){ alert('خطأ في التحميل: ' + err.message); }
-   }
+  function renderBooksList(data){
+    const entries = Object.entries(data || {});
+    if(!entries.length){ booksList.innerHTML = '<div class="small">لا توجد كتب مضافة</div>'; return; }
+    booksList.innerHTML = '';
+    entries.sort((a,b)=> new Date(b[1].createdAt||0) - new Date(a[1].createdAt||0));
+    entries.forEach(([id, book])=>{
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `
+        <img src="${esc(book.coverUrl || 'https://picsum.photos/120/160')}" style="width:80px;height:110px;object-fit:cover;border-radius:6px">
+        <div class="meta">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>${esc(book.title||'بدون عنوان')}</strong><div class="small">${esc(book.author||'')}</div></div>
+            <div class="small">${new Date(book.createdAt||0).toLocaleString('ar-SA')||''}</div>
+          </div>
+          <div class="small" style="margin-top:6px">${esc(book.description||'')}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="primary" data-id="${esc(id)}" data-action="edit">تعديل</button>
+          <button data-id="${esc(id)}" data-action="delete" style="background:#f44336;color:white;border-radius:6px;padding:6px 8px">حذف</button>
+          <a href="../book.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">معاينة</a>
+        </div>
+      `;
+      const editBtn = div.querySelector('[data-action="edit"]');
+      const delBtn = div.querySelector('[data-action="delete"]');
+      editBtn.addEventListener('click', ()=> loadBookIntoForm(id));
+      delBtn.addEventListener('click', ()=> deleteBook(id));
+      booksList.appendChild(div);
+    });
+  }
 
-   async function deleteBook(id){
-     if(!confirm('تأكيد حذف الكتاب؟')) return;
-     try{
-       await remove(dbRef(db, `${BOOKS_PATH}/${id}`));
-       alert('✅ تم الحذف');
-     }catch(err){ alert('خطأ في الحذف: ' + err.message); }
-   }
+  async function loadBookIntoForm(id){
+    try{
+      const snap = await get(child(dbRef(db), `${BOOKS_PATH}/${id}`));
+      if(!snap.exists()){ alert('لم يتم العثور على كتاب'); return; }
+      const b = snap.val();
+      bookIdEl.value = id;
+      titleEl.value = b.title || '';
+      authorEl.value = b.author || '';
+      descriptionEl.value = b.description || '';
+      detailsEl.value = b.details || '';
+      categoryEl.value = b.category || '';
+      window.computedPages = b.pages ?? null;
+      window.computedSize = b.size || '';
+      ratingEl.value = b.rating ?? 0;
+      pvCover.src = b.coverUrl || '';
+      pvTitle.textContent = b.title || '';
+      pvAuthor.textContent = 'المؤلف: ' + (b.author || '');
+      pvCategory.textContent = 'القسم: ' + (b.category || '');
+      pvPages.textContent = 'الصفحات: ' + (window.computedPages ?? '—') + (window.computedSize ? ' • الحجم: ' + window.computedSize : '');
+      pvRating.textContent = 'التقييم: ' + (b.rating ?? 0);
+      pvDescription.textContent = b.description || '';
+      pvDetails.innerHTML = b.details || '';
+      pvFileLink.href = b.fileUrl || '#';
+      previewArea.hidden = false;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){ alert('خطأ في التحميل: ' + err.message); }
+  }
 
-   // حفظ / نشر
-   saveBtn.addEventListener('click', async ()=>{
-     const idInput = bookIdEl.value.trim();
-     const isEdit = !!idInput;
-     const refNode = isEdit ? dbRef(db, `${BOOKS_PATH}/${idInput}`) : push(dbRef(db, BOOKS_PATH));
-     const id = isEdit ? idInput : refNode.key;
+  async function deleteBook(id){
+    if(!confirm('تأكيد حذف الكتاب؟')) return;
+    try{
+      await remove(dbRef(db, `${BOOKS_PATH}/${id}`));
+      alert('✅ تم الحذف');
+    }catch(err){ alert('خطأ في الحذف: ' + err.message); }
+  }
 
-     let coverUrl = '';
-     let fileUrl = '';
+  // حفظ / نشر
+  saveBtn.addEventListener('click', async ()=>{
+    const idInput = bookIdEl.value.trim();
+    const isEdit = !!idInput;
+    const refNode = isEdit ? dbRef(db, `${BOOKS_PATH}/${idInput}`) : push(dbRef(db, BOOKS_PATH));
+    const id = isEdit ? idInput : refNode.key;
 
-     try{
-       if (coverFileEl.files[0]) {
-         uploadProgress.style.display = 'block';
-         const cRef = sRef(storage, `books/${id}_cover_${coverFileEl.files[0].name}`);
-         const up = uploadBytesResumable(cRef, coverFileEl.files[0]);
-         await new Promise((res, rej) => up.on('state_changed',
-           (snap)=> progressBar.style.width = (snap.bytesTransferred / snap.totalBytes) * 100 + '%',
-           rej,
-           async ()=>{ coverUrl = await getDownloadURL(up.snapshot.ref); res(); }
-         ));
-       }
-       if (bookFileEl.files[0]) {
-         uploadProgress.style.display = 'block';
-         const fRef = sRef(storage, `books/${id}_file_${bookFileEl.files[0].name}`);
-         const up2 = uploadBytesResumable(fRef, bookFileEl.files[0]);
-         await new Promise((res, rej) => up2.on('state_changed',
-           (snap)=> progressBar.style.width = (snap.bytesTransferred / snap.totalBytes) * 100 + '%',
-           rej,
-           async ()=>{ fileUrl = await getDownloadURL(up2.snapshot.ref); res(); }
-         ));
-       }
-     }catch(err){
-       uploadProgress.style.display = 'none';
-       alert('خطأ في رفع الملفات: ' + err.message);
-       return;
-     }
-     uploadProgress.style.display = 'none';
-     progressBar.style.width = '0%';
+    let coverUrl = '';
+    let fileUrl = '';
 
-     // بناء payload مع تجاهل الحقول الفارغة (لا نريد الكتابة بقيم فارغة)
-     const payload = {
-       id,
-       title: titleEl.value.trim(),
-       author: authorEl.value.trim(),
-       details: detailsEl.value.trim(),
-       category: categoryEl.value.trim(),
-       rating: parseFloat(ratingEl.value) || 0,
-       // استخدم القيم المحسوبة المخزنة عالمياً (لا يمكن للمستخدم تعديلها يدوياً)
-       pages: window.computedPages ? parseInt(window.computedPages) : null,
-       size: window.computedSize || '',
-       updatedAt: nowIso()
-     };
-     // أضف الوصف فقط إذا كان غير فارغ — هذا يمنع الكتابة بقيمة '' عند التعديل
-     const desc = descriptionEl.value.trim();
-     if (desc) payload.description = desc;
+    try{
+      if (coverFileEl.files[0]) {
+        uploadProgress.style.display = 'block';
+        const cRef = sRef(storage, `books/${id}_cover_${coverFileEl.files[0].name}`);
+        const up = uploadBytesResumable(cRef, coverFileEl.files[0]);
+        await new Promise((res, rej) => up.on('state_changed',
+          (snap)=> progressBar.style.width = (snap.bytesTransferred / snap.totalBytes) * 100 + '%',
+          rej,
+          async ()=>{ coverUrl = await getDownloadURL(up.snapshot.ref); res(); }
+        ));
+      }
+      if (bookFileEl.files[0]) {
+        uploadProgress.style.display = 'block';
+        const fRef = sRef(storage, `books/${id}_file_${bookFileEl.files[0].name}`);
+        const up2 = uploadBytesResumable(fRef, bookFileEl.files[0]);
+        await new Promise((res, rej) => up2.on('state_changed',
+          (snap)=> progressBar.style.width = (snap.bytesTransferred / snap.totalBytes) * 100 + '%',
+          rej,
+          async ()=>{ fileUrl = await getDownloadURL(up2.snapshot.ref); res(); }
+        ));
+      }
+    }catch(err){
+      uploadProgress.style.display = 'none';
+      alert('خطأ في رفع الملفات: ' + err.message);
+      return;
+    }
+    uploadProgress.style.display = 'none';
+    progressBar.style.width = '0%';
 
-     if (!isEdit) payload.createdAt = nowIso();
-     if (coverUrl) payload.coverUrl = coverUrl;
-     if (fileUrl) payload.fileUrl = fileUrl;
+    const payload = {
+      id,
+      title: titleEl.value.trim(),
+      author: authorEl.value.trim(),
+      details: detailsEl.value.trim(),
+      category: categoryEl.value.trim(),
+      rating: parseFloat(ratingEl.value) || 0,
+      pages: window.computedPages ? parseInt(window.computedPages) : null,
+      size: window.computedSize || '',
+      updatedAt: nowIso()
+    };
+    const desc = descriptionEl.value.trim();
+    if (desc) payload.description = desc;
 
-     try{
-       if(isEdit) await update(refNode, payload); else await set(refNode, payload);
-       alert('✅ تم الحفظ. id = ' + id);
-       bookIdEl.value = id;
-       pvFileLink.href = payload.fileUrl || '#';
-     }catch(err){ alert('خطأ في الحفظ: ' + err.message); }
-   });
-   </script>
- </body>
- </html>
+    if (!isEdit) payload.createdAt = nowIso();
+    if (coverUrl) payload.coverUrl = coverUrl;
+    if (fileUrl) payload.fileUrl = fileUrl;
+
+    try{
+      if(isEdit) await update(refNode, payload); else await set(refNode, payload);
+      alert('✅ تم الحفظ. id = ' + id);
+      bookIdEl.value = id;
+      pvFileLink.href = payload.fileUrl || '#';
+    }catch(err){ alert('خطأ في الحفظ: ' + err.message); }
+  });
+  </script>
+</body>
+</html>
