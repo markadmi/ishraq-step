@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ishraq Step - الدروس المرئية</title>
+<link rel="stylesheet" href="css/video.css">
+<link rel="icon" href="icon.png" type="image/x-icon">
+<style>
+  .sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 15px;
+  }
+  /* Loader */
+  .loader {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+    padding: 18px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 10px;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .spinner {
+    width:18px;
+    height:18px;
+    border:3px solid #ddd;
+    border-top-color:#4caf50;
+    border-radius:50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .section-card {
+    background: linear-gradient(135deg, #4caf50, #00eeff);
+    color: white;
+    border-radius: 14px;
+    text-align: center;
+    padding: 18px;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+  }
+
+  .section-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 18px rgba(76, 175, 80, 0.6);
+  }
+
+  #videos-container {
+    display: none;
+    padding: 15px;
+  }
+
+  .back-btn {
+    background: #4caf50;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+
+  .video {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .video iframe {
+    width: 100%;
+    max-width: 600px;
+    height: 315px;
+    border: none;
+    border-radius: 10px;
+  }
+</style>
+   <!--ads-->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
+     crossorigin="anonymous">
+      </script>
+</head>
+ <body>
+
+<header>📚 Ishraq Step - الدروس المرئية</header>
+
+<!-- 🧭 الأقسام السبعة -->
+<div id="sections-container" class="sections">
+  <div class="section-card" data-type="ماث 0">🧮 ماث 0</div>
+  <div class="section-card" data-type="ماث 1">🧮 ماث 1</div>
+  <div class="section-card" data-type="انجليزي">🇬🇧 إنجليزي</div>
+  <div class="section-card" data-type="دوائر كهربائية">🔌 دوائر كهربائية</div>
+  <div class="section-card" data-type="اخلاقيات المهنه">⚖️ أخلاقيات المهنة</div>
+  <div class="section-card" data-type="مقدمة حاسب الي">💻 مقدمة حاسب آلي</div>
+  <div class="section-card" data-type="كورسات اخرى">🧠 كورسات أخرى</div>
+</div>
+
+<!-- 🎥 قسم عرض الفيديوهات -->
+<div id="videos-container">
+  <button class="back-btn">⬅️ رجوع إلى الأقسام</button>
+  <h2 id="section-title"></h2>
+
+  <!-- loader: يظهر عند تحميل الفيديوهات -->
+  <div id="loader" class="loader"><div class="spinner" aria-hidden="true"></div><div>الرجاء الانتظار...</div></div>
+
+  <!-- جديد: قائمة الأقسام الفرعية -->
+  <div id="subsections-list" style="display:none; padding:12px; gap:10px;"></div>
+
+  <div id="videos-list"></div>
+</div>
+
+<footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
+
+<!-- Firebase -->
+ <script type="module">
+  import { db } from './chat/js/fb.js';
+  import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const sectionsContainer = document.getElementById('sections-container');
+  const videosContainer = document.getElementById('videos-container');
+  const videosList = document.getElementById('videos-list');
+  const sectionTitle = document.getElementById('section-title');
+  const backBtn = document.querySelector('.back-btn');
+  const subsectionsList = document.getElementById('subsections-list'); // جديد
+
+  let coursesData = {};
+
+  // 🧠 تحميل كل الفيديوهات مرة واحدة من Firebase
+  onValue(ref(db, 'courses'), snapshot => {
+    coursesData = snapshot.val() || {};
+  });
+
+  // 📌 عند الضغط على قسم
+  document.querySelectorAll('.section-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const type = card.dataset.type;
+      showSectionVideos(type);
+    });
+  });
+
+  // 🟢 عرض الفيديوهات الخاصة بقسم معين
+  function showSectionVideos(type) {
+    sectionsContainer.style.display = 'none';
+    videosContainer.style.display = 'block';
+    sectionTitle.textContent = `🎓 ${type}`;
+    videosList.innerHTML = '';
+    subsectionsList.innerHTML = '';
+    subsectionsList.style.display = 'none';
+    showLoader(true);
+
+    requestAnimationFrame(() => {
+      const all = Object.values(coursesData || {});
+      const filtered = all.filter(item => item.type === type);
+
+      if (filtered.length === 0) {
+        videosList.innerHTML = '<p>🚧 لا توجد فيديوهات بعد لهذا القسم</p>';
+        showLoader(false);
+        return;
+      }
+
+      // جمع الأقسام الفرعية (subsection)
+      const subs = Array.from(new Set(filtered.map(v => (v.subsection||'بدون قسم فرعي').trim())));
+
+      if(subs.length > 1 || (subs.length===1 && subs[0] !== '')) {
+        // عرض قائمة الأقسام الفرعية أولاً
+        subsectionsList.style.display = 'flex';
+        subsectionsList.style.flexWrap = 'wrap';
+        subsectionsList.style.gap = '10px';
+        // زر لعرض الكل
+        const allBtn = document.createElement('div');
+        allBtn.className = 'section-card';
+        allBtn.textContent = '🟢 عرض الكل';
+        allBtn.addEventListener('click', ()=> renderVideos(filtered));
+        subsectionsList.appendChild(allBtn);
+
+        subs.forEach(s => {
+          const label = s || 'بدون قسم فرعي';
+          const card = document.createElement('div');
+          card.className = 'section-card';
+          card.textContent = label;
+          card.addEventListener('click', ()=> {
+            const items = filtered.filter(v => ((v.subsection||'').trim() || 'بدون قسم فرعي') === label);
+            renderVideos(items);
+          });
+          subsectionsList.appendChild(card);
+        });
+
+        // افتراضيًا نعرض الكل
+        renderVideos(filtered);
+        showLoader(false);
+        return;
+      }
+
+      // حالة وجود قسم فرعي واحد فقط أو لا أقسام فرعية
+      renderVideos(filtered);
+      showLoader(false);
+    });
+  }
+
+  function renderVideos(list){
+    videosList.innerHTML = '';
+    list.forEach(video => {
+      const div = document.createElement('div');
+      div.className = 'video';
+      const subLabel = (video.subsection || '').trim();
+      div.innerHTML = `
+        <iframe src="${video.url}" allowfullscreen></iframe>
+        <h2>${video.title}</h2>
+        ${ subLabel ? `<h3 style="color:#4caf50;">${subLabel}</h3>` : '' }
+        <p>${video.description}</p>
+      `;
+      videosList.appendChild(div);
+    });
+  }
+
+  // دوال مساعدة للتحكم في الـ loader
+  function showLoader(show){
+    const loader = document.getElementById('loader');
+    if(!loader) return;
+    loader.style.display = show ? 'flex' : 'none';
+  }
+
+  // 🔙 زر الرجوع إلى الأقسام
+  backBtn.addEventListener('click', () => {
+    videosContainer.style.display = 'none';
+    sectionsContainer.style.display = 'grid';
+    sectionTitle.textContent = '';
+    videosList.innerHTML = '';
+    showLoader(false);
+  });
+ </script>
+
+ </body>
+</html>

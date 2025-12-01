@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8"/>
+  <title>تسجيل الدخول — الدردشة</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="style/main.css">
+
+  <style>
+    .progress-container {
+      width: 100%;
+      background: #f0f0f0;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 12px;
+      margin-top: 10px;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #007bff, #00d4ff);
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 6px;
+      display: none;
+    }
+    /* تعطيل الزر أثناء الرفع */
+    .btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  </style>
+   <!--ads-->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
+     crossorigin="anonymous">
+      </script>
+</head>
+<body>
+  <div class="center-card">
+    <div class="card">
+      <h2>تسجيل الدخول للدردشة</h2>
+      <p class="muted">أدخل اسمك وصورتك للدردشة".</p>
+
+      <label>الاسم</label>
+      <input id="name" type="text" placeholder="اسمك">
+
+      <label>صورتك (Avatar)</label>
+      <input id="avatarFile" type="file" accept="image/*">
+
+      <label>موقعك (اختياري أو اتركة فارغ)</label>
+      <input id="location" type="text" placeholder="اتركه فارغ">
+
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button id="enterBtn" class="btn">دخول</button>
+        <button id="clearBtn" class="btn btn-muted">تفريغ الحقول</button>
+      </div>
+
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText">جارٍ رفع الصورة...</div>
+
+      <div id="info" class="small muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/fb.js"></script>
+  <script type="module">
+    import { db, storage } from './js/fb.js';
+    import { ref as dbRef, push, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    
+    const logo = "sohag-eg"; 
+
+    const nameEl = document.getElementById('name');
+    const avatarFileEl = document.getElementById('avatarFile');
+    const locationEl = document.getElementById('location');
+    const enterBtn = document.getElementById('enterBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const infoDiv = document.getElementById('info');
+
+    function setInfo(t) { infoDiv.innerText = t; }
+
+    function getDeviceId() {
+      let id = localStorage.getItem('device_id');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('device_id', id);
+      }
+      return id;
+    }
+    const deviceId = getDeviceId();
+
+    enterBtn.addEventListener('click', async () => {
+      const name = (nameEl.value || '').trim();
+      const pass = locationEl.value || '';
+      const file = avatarFileEl.files[0];
+
+      if (!name) return alert('الرجاء إدخال اسم');
+      if (!file) return alert('الرجاء اختيار صورة');
+
+      // ✅ تعطيل الزر لمنع الضغط المتكرر
+      enterBtn.disabled = true;
+      enterBtn.innerText = 'جاري الرفع...';
+
+      progressContainer.style.display = 'block';
+      progressText.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressText.innerText = 'جارٍ رفع الصورة...';
+
+      try {
+        const stamp = Date.now();
+        const safe = name.replace(/[^\w\-ء-ي ]/g,'').replace(/ /g,'_').slice(0,40);
+        const path = `avatars/${safe}_${stamp}.png`;
+        const sRef = storageRef(storage, path);
+
+        const uploadTask = uploadBytesResumable(sRef, file);
+
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.style.width = progress.toFixed(0) + '%';
+            progressText.innerText = `جارٍ رفع الصورة... ${progress.toFixed(0)}%`;
+          }, 
+          (error) => {
+            console.error(error);
+            alert('حدث خطأ أثناء رفع الصورة.');
+            progressText.innerText = 'فشل الرفع ❌';
+            enterBtn.disabled = false; // ✅ إعادة تفعيل الزر بعد الفشل
+            enterBtn.innerText = 'دخول';
+          }, 
+          async () => {
+            const avatarUrl = await getDownloadURL(uploadTask.snapshot.ref);
+
+            const userRef = push(dbRef(db, 'users'));
+            const role = (pass === logo) ? 'مسؤول' : 'طالب';
+
+            await set(userRef, {
+              name,
+              avatarUrl,
+              role,
+              deviceId,
+              joinedAt: Date.now()
+            });
+
+            const session = { userKey: userRef.key, deviceId, name, avatarUrl, role };
+            localStorage.setItem('chat_session', JSON.stringify(session));
+
+            const msgRef = push(dbRef(db, 'messages'));
+            await set(msgRef, {
+              type: 'join',
+              name,
+              avatar: avatarUrl,
+              role,
+              text: `${name} انضم إلى الدردشة`,
+              timestamp: Date.now()
+            });
+
+            progressText.innerText = 'تم الرفع ✅ جاري الدخول...';
+            setTimeout(() => window.location.href = 'chat.html', 700);
+          }
+        );
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء التسجيل.');
+        setInfo('');
+        enterBtn.disabled = false; // ✅ في حال حدوث خطأ عام
+        enterBtn.innerText = 'دخول';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      nameEl.value = '';
+      locationEl.value = '';
+      avatarFileEl.value = '';
+      setInfo('');
+      progressContainer.style.display = 'none';
+      progressText.style.display = 'none';
+      enterBtn.disabled = false;
+      enterBtn.innerText = 'دخول';
+    });
+
+    const s = localStorage.getItem('chat_session');
+    if (s) {
+      window.location.href = 'chat.html';
+    }
+  </script>
+</body>
+</html>
