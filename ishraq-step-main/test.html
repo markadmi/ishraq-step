@@ -94,13 +94,11 @@
 
       <div class="nav-buttons">
         <button class="btn btn-neutral" id="prevBtn" disabled>⬅️ السؤال السابق</button>
-        <button class="btn btn-primary" id="saveBtn">💾 حفظ الإجابة</button>
         <button class="btn btn-neutral" id="nextBtn">السؤال التالي ➡️</button>
       </div>
 
       <div style="margin-top:20px;display:flex;gap:8px;justify-content:center">
         <button class="btn btn-danger" id="submitBtn">🏁 تسليم الاختبار</button>
-        <button class="btn btn-neutral" id="endTimeBtn">⏹️ إنهاء الوقت</button>
       </div>
 
       <!-- Result Screen (Hidden) -->
@@ -164,16 +162,13 @@
     import { db } from './chat/js/fb.js';
     import { ref, get, child } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    // DOM Elements
     const examContainer = document.getElementById('examContainer');
     const examTitle = document.getElementById('examTitle');
     const timer = document.getElementById('timer');
     const questionArea = document.getElementById('questionArea');
     const prevBtn = document.getElementById('prevBtn');
-    const saveBtn = document.getElementById('saveBtn');
     const nextBtn = document.getElementById('nextBtn');
     const submitBtn = document.getElementById('submitBtn');
-    const endTimeBtn = document.getElementById('endTimeBtn');
     const questionsGrid = document.getElementById('questionsGrid');
     const resultScreen = document.getElementById('resultScreen');
     const reviewModal = document.getElementById('reviewModal');
@@ -187,7 +182,6 @@
     let timerInterval = null;
     let isSubmitted = false;
 
-    // Get test ID from URL
     const testId = new URLSearchParams(location.search).get('id');
     if (!testId) {
       examContainer.innerHTML = '<div style="color:var(--danger);padding:20px">خطأ: لم يتم تحديد الاختبار</div>';
@@ -205,12 +199,22 @@
         testData = snap.val();
         examTitle.textContent = testData.title || 'اختبار';
         
-        // Parse questions from PDF (يمكن تخزينها مباشرة في Firebase)
-        // للآن سنستخدم نموذج تجريبي
-        questions = generateMockQuestions(10);
+        questions = (testData.questions || []).map(q => ({
+          id: q.id,
+          text: q.text || '',
+          imageUrl: q.imageUrl || '',
+          choices: (q.choices || []).map(c => ({
+            text: c.text || '',
+            correct: !!c.isCorrect
+          }))
+        }));
         
-        // Set timer (duration in minutes)
-        timeLeft = (testData.duration || 60) * 60; // Convert to seconds
+        if(questions.length === 0){
+          examContainer.innerHTML = '<div style="color:var(--danger);padding:20px">لا توجد أسئلة في هذا الاختبار</div>';
+          return;
+        }
+        
+        timeLeft = (testData.duration || 60) * 60;
         startTimer();
         renderQuestion();
         renderQuestionsGrid();
@@ -219,20 +223,6 @@
         console.error(err);
         examContainer.innerHTML = '<div style="color:var(--danger);padding:20px">خطأ في تحميل الاختبار</div>';
       }
-    }
-
-    function generateMockQuestions(count){
-      // في التطبيق الفعلي، ستأتي الأسئلة من ملف PDF محلل
-      return Array.from({length:count}, (_, i)=>({
-        id: i+1,
-        text: `السؤال ${i+1}: ما هي الإجابة الصحيحة؟`,
-        choices: [
-          {text:'الخيار الأول', correct:i%2===0},
-          {text:'الخيار الثاني', correct:i%2!==0},
-          {text:'الخيار الثالث', correct:false},
-          {text:'الخيار الرابع', correct:false}
-        ]
-      }));
     }
 
     function startTimer(){
@@ -265,14 +255,19 @@
         <div class="question-container">
           <div class="question-number">السؤال ${currentQuestionIndex+1} من ${questions.length}</div>
           <div class="question-text">${escapeHtml(q.text)}</div>
+          ${q.imageUrl ? `<img src="${escapeAttr(q.imageUrl)}" style="max-width:100%;border-radius:8px;margin:12px 0">` : ''}
           <div class="choices">
-            ${q.choices.map((c, i)=>`
-              <button class="choice-btn ${saved === i ? 'selected' : ''}" 
-                onclick="selectAnswer(${i})" 
-                ${isSubmitted ? (c.correct ? 'class="choice-btn correct"' : (saved === i ? 'class="choice-btn incorrect"' : '')) : ''}>
+            ${q.choices.map((c, i)=>{
+              let classes = 'choice-btn';
+              if(saved === i) classes += ' selected';
+              if(isSubmitted){
+                if(c.correct) classes = 'choice-btn correct';
+                else if(saved === i) classes = 'choice-btn incorrect';
+              }
+              return `<button class="${classes}" onclick="selectAnswer(${i})" ${isSubmitted?'disabled':''}>
                 ${String.fromCharCode(65+i)}: ${escapeHtml(c.text)}
-              </button>
-            `).join('')}
+              </button>`;
+            }).join('')}
           </div>
         </div>
       `;
@@ -288,8 +283,9 @@
     window.selectAnswer = function(choiceIndex){
       if(isSubmitted) return;
       userAnswers[currentQuestionIndex] = choiceIndex;
-      updateStats();
+      renderQuestion();
       questionsGrid.querySelector(`[data-q="${currentQuestionIndex}"]`).classList.add('answered');
+      updateStats();
     };
 
     function renderQuestionsGrid(){
@@ -306,12 +302,6 @@
       currentQuestionIndex = index;
       renderQuestion();
     };
-
-    saveBtn.addEventListener('click', ()=>{
-      const message = userAnswers[currentQuestionIndex] !== undefined ? 
-        '✅ تم حفظ الإجابة' : '⚠️ لم تختر إجابة';
-      alert(message);
-    });
 
     prevBtn.addEventListener('click', ()=>{
       if(currentQuestionIndex > 0){
@@ -333,18 +323,10 @@
       }
     });
 
-    endTimeBtn.addEventListener('click', ()=>{
-      if(confirm('هل تريد إنهاء الوقت وتسليم الاختبار الآن؟')){
-        timeLeft = 0;
-        submitTest();
-      }
-    });
-
     function submitTest(){
       clearInterval(timerInterval);
       isSubmitted = true;
       
-      // Calculate results
       let correct = 0;
       let wrong = 0;
       const wrongAnswers = [];
@@ -365,7 +347,6 @@
       const score = correct;
       const maxScore = questions.length;
       
-      // Show result
       document.getElementById('scoreDisplay').textContent = `${score}/${maxScore}`;
       document.getElementById('correctCount').textContent = correct;
       document.getElementById('wrongCount').textContent = wrong;
@@ -378,8 +359,6 @@
         showReview(wrongAnswers);
       };
       
-      // Re-render questions with correct/incorrect styling
-      renderQuestion();
       document.querySelector('.exam-main').style.display = 'none';
       resultScreen.style.display = 'block';
     }
@@ -395,7 +374,7 @@
             الإجابة الصحيحة: <span class="review-correct">${escapeHtml(item.question.choices[item.correctChoice].text)}</span>
           </div>
         </div>
-      `).join('') || '<div class="muted">لا توجد إجابات خاطئة! 🎉</div>';
+      `).join('') || '<div style="color:#9aa3af">لا توجد إجابات خاطئة! 🎉</div>';
       reviewModal.classList.add('show');
     }
 
@@ -406,10 +385,11 @@
     }
 
     function escapeHtml(s){
-      return (s||'').toString()
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;');
+      return (s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    function escapeAttr(s){
+      return (s||'').replaceAll('"','%22');
     }
   </script>
 </body>
