@@ -24,7 +24,13 @@ body {
   transition: transform .4s ease;
 }
 
-/* القائمة الجانبية */
+/* تغير شكل الزر عند فتح القائمة */
+#toggleSidebar:checked + .toggle-btn::after {
+  content: " ✖"; /* يظهر × عند فتح القائمة */
+  margin-left: 8px;
+}
+
+/* القائمة الجانبية مخفية افتراضيًا */
 #siteSidebar {
   position: fixed;
   top: 0;
@@ -34,13 +40,13 @@ body {
   border: 0;
   z-index: 9999;
   background: #fff;
+  transform: translateX(100%); /* مخفية */
   transition: transform .4s ease;
 }
 
-/* عند إخفاء القائمة */
+/* عند الضغط على الزر تظهر القائمة */
 #toggleSidebar:checked ~ #siteSidebar {
-  transform: translateX(100%);
-  content: "اخفاء القائمة"; 
+  transform: translateX(0); /* تظهر */
 }
 
 /* المحتوى الرئيسي */
@@ -51,11 +57,10 @@ body {
 
 @media (min-width: 900px) {
   .main-content {
-    margin-right: 300px; /* مساحة القائمة */
+    margin-right: 0; /* تبدأ بدون أي حافة */
   }
 
   #toggleSidebar:checked ~ .main-content {
-    margin-right: 0;
-
+    margin-right: 300px; /* مساحة القائمة عند ظهورها */
   }
 }
