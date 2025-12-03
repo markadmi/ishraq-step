@@ -6,6 +6,8 @@
 <title>Ishraq Step - الدروس المرئية</title>
 <link rel="stylesheet" href="css/video.css">
 <link rel="icon" href="icon.png" type="image/x-icon">
+<link rel="stylesheet" href="css/open-sidebar.css">
+
 <style>
   .sections {
     display: grid;
@@ -81,7 +83,9 @@
     border: none;
     border-radius: 10px;
   }
+
 </style>
+<link rel="stylesheet" href="css/open-sidebar.css">
    <!--ads-->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
      crossorigin="anonymous">
@@ -89,8 +93,14 @@
 </head>
  <body>
 
-<header>📚 Ishraq Step - الدروس المرئية</header>
+<header>📚 Ishraq Step - الدروس </header>
 
+  <input type="checkbox" id="toggleSidebar">
+ <label for="toggleSidebar" class="toggle-btn">
+  ☰ اخفاء القائمة
+ </label>
+ 
+ <iframe id="siteSidebar" src="sidebar.html"></iframe>
 <!-- 🧭 الأقسام السبعة -->
 <div id="sections-container" class="sections">
   <div class="section-card" data-type="ماث 0">🧮 ماث 0</div>
@@ -99,6 +109,7 @@
   <div class="section-card" data-type="دوائر كهربائية">🔌 دوائر كهربائية</div>
   <div class="section-card" data-type="اخلاقيات المهنه">⚖️ أخلاقيات المهنة</div>
   <div class="section-card" data-type="مقدمة حاسب الي">💻 مقدمة حاسب آلي</div>
+  <div class="section-card" data-type="فيزياء">🧲 فيزياء</div>
   <div class="section-card" data-type="كورسات اخرى">🧠 كورسات أخرى</div>
 </div>
 
@@ -237,5 +248,6 @@
   });
  </script>
 
+  <iframe src="sidebar.html" id="siteSidebar" title="قائمة جانبية — Ishraq Step"></iframe>
  </body>
 </html>

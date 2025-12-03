@@ -10,7 +10,7 @@
   <link rel="icon" href="icon.png" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff8a00">
-
+  <link rel="stylesheet" href="css/open-sidebar.css">
   <!--ads-->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116"
      crossorigin="anonymous">
@@ -19,6 +19,13 @@
 </head>
 
 <body>
+  <input type="checkbox" id="toggleSidebar">
+ <label for="toggleSidebar" class="toggle-btn">
+  ☰ اخفاء القائمة
+ </label>
+ 
+ <iframe id="siteSidebar" src="sidebar.html"></iframe>
+
   <main class="container" role="main" aria-labelledby="main-title">
     <section class="hero" aria-label="عرض المنصة">
       <div class="badge" aria-hidden="true">
@@ -157,6 +164,7 @@
        .catch(error => console.log('فشل تسجيل Service Worker:', error));
    }
  </script>
- <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
+ <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer><input type="checkbox" id="toggleSidebar">
+
 </body>
 </html>

@@ -1,0 +1,61 @@
+/* تنسيق عام */
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+/* checkbox مخفي للتحكم بالقائمة */
+#toggleSidebar {
+  display: none;
+}
+
+/* زر التحكم ثابت فوق كل شيء */
+.toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 99999; /* أعلى من iframe */
+  transition: transform .4s ease;
+}
+
+/* القائمة الجانبية */
+#siteSidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100vh;
+  border: 0;
+  z-index: 9999;
+  background: #fff;
+  transition: transform .4s ease;
+}
+
+/* عند إخفاء القائمة */
+#toggleSidebar:checked ~ #siteSidebar {
+  transform: translateX(100%);
+  content: "اخفاء القائمة"; 
+}
+
+/* المحتوى الرئيسي */
+.main-content {
+  padding: 20px;
+  transition: margin-right .4s ease;
+}
+
+@media (min-width: 900px) {
+  .main-content {
+    margin-right: 300px; /* مساحة القائمة */
+  }
+
+  #toggleSidebar:checked ~ .main-content {
+    margin-right: 0;
+
+  }
+}

@@ -26,10 +26,14 @@
     .loading { text-align: center; font-size: 18px; color: #666; }
     footer { text-align: center; margin-top: 50px; color: #999; font-size: 14px; }
     @media (max-width:600px){ .book-card{padding:12px} .book-description{min-height:30px} }
+    @media(min-width:900px){ body{margin-inline-end:320px !important} }
+    #siteSidebar{position:fixed;top:0;right:0;height:100vh;width:300px;border:0;z-index:9999}
   </style>
+  <link rel="stylesheet" href="css/open-sidebar.css">
 </head>
 
 <body>
+
   <header>📖 المكتبة الإلكترونية - Ishraq Step</header>
 
   <!-- أقسام تظهر أولاً -->
@@ -42,6 +46,14 @@
   </div>
 
   <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
+
+  <input type="checkbox" id="toggleSidebar">
+ <label for="toggleSidebar" class="toggle-btn">
+  ☰ اخفاء القائمة
+ </label>
+ 
+ <iframe id="siteSidebar" src="sidebar.html"></iframe>
+
 
   <script type="module">
     import { db } from './chat/js/fb.js';
