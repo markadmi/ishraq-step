@@ -319,7 +319,7 @@
           <div style="display:flex;flex-direction:column;gap:6px">
             <button class="primary" data-id="${esc(id)}" data-action="edit">تعديل</button>
             <button data-id="${esc(id)}" data-action="delete" style="background:#f44336;color:white;border-radius:6px;padding:6px 8px">حذف</button>
-            <a href="../test.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">معاينة</a>
+            <a href="../test.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">دخول الاختبار</a>
           </div>
         `;
         div.querySelector('[data-action="edit"]').addEventListener('click', ()=> loadTestIntoForm(id));
