@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <title>دخول الرئيس</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style/owner.css">
+</head>
+<body>
+  <div class="owner-container">
+    <div class="owner-card">
+      <h1>👑 دخول الرئيس</h1>
+      <p>أدخل اسمك وارفع صورتك لتبدأ إدارة الدردشة.</p>
+
+      <label>الاسم</label>
+      <input id="ownerName" type="text" placeholder="اسم الرئيس">
+
+      <label>صورتك (اختياري)</label>
+      <input id="ownerAvatar" type="file" accept="image/*">
+
+      <button id="enterOwner" class="btn">دخول كرئيس</button>
+
+      <div id="info" class="info"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/fb.js"></script>
+  <script type="module">
+    import { db, storage } from './js/fb.js';
+    import { ref as dbRef, push, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+    const nameEl = document.getElementById('ownerName');
+    const avatarEl = document.getElementById('ownerAvatar');
+    const btn = document.getElementById('enterOwner');
+    const info = document.getElementById('info');
+
+    function setInfo(txt) { info.innerText = txt; }
+
+    btn.addEventListener('click', async () => {
+      const name = nameEl.value.trim();
+      const file = avatarEl.files[0];
+
+      if (!name) return alert('يرجى إدخال الاسم.');
+
+      setInfo('جارٍ تجهيز حسابك...');
+
+      let avatarUrl = 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png'; // صورة افتراضية
+      try {
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const dataUrl = e.target.result;
+            const path = `owners/${Date.now()}.png`;
+            const sRef = storageRef(storage, path);
+            await uploadString(sRef, dataUrl, 'data_url');
+            avatarUrl = await getDownloadURL(sRef);
+            await saveOwner(name, avatarUrl);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          await saveOwner(name, avatarUrl);
+        }
+      } catch (err) {
+        console.error(err);
+        setInfo('حدث خطأ أثناء الدخول');
+      }
+    });
+
+    async function saveOwner(name, avatarUrl) {
+      const userRef = push(dbRef(db, 'owners'));
+      await set(userRef, {
+        name,
+        avatarUrl,
+        role: 'رئيس',
+        joinedAt: Date.now()
+      });
+
+      const session = {
+        userKey: userRef.key,
+        name,
+        avatarUrl,
+        role: 'رئيس'
+      };
+      localStorage.setItem('chat_session', JSON.stringify(session));
+      window.location.href = 'owner-chat.html';
+    }
+
+    // لو جلسة رئيس موجودة
+    const s = localStorage.getItem('chat_session');
+    if (s) {
+      const sess = JSON.parse(s);
+      if (sess.role === 'رئيس') {
+        window.location.href = 'owner-chat.html';
+      }
+    }
+  </script>
+</body>
+</html>
