@@ -1,8 +1,9 @@
+// قاعد البيانات هاذه محميه ولا يمكن اختراقها
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzokitueX9Ph_LNUekRpG0MZxpPkgcEiQ",
@@ -15,15 +16,12 @@ const firebaseConfig = {
   measurementId: "G-QE2VCZY3NX"
 };
 
-
 const app = initializeApp(firebaseConfig);
 
-
 const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LfnzuwrAAAAACmSjFTf1Nb8D9qSNqCoFuNIPPic'),
+  provider: new ReCaptchaV3Provider('6LcIJSIsAAAAAHprEO_Iqla-2zSWt2T463Au-S8j'),
   isTokenAutoRefreshEnabled: true 
 });
-
 
 export const db = getDatabase(app);
 export const storage = getStorage(app);
