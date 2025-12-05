@@ -131,7 +131,7 @@
               <div class="muted" style="margin-top:8px">الدرجة: ${escapeHtml(String(item.maxScore||'—'))} • المدة: ${escapeHtml(String(item.duration||'—'))} دقائق</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px">
-              <a href="test.html?id=${encodeURIComponent(id)}" style="background:#fff;color:var(--accent);padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">معاينة</a>
+              <a href="test.html?id=${encodeURIComponent(id)}" style="background:#fff;color:var(--accent);padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">دخول الأختبار</a>
               ${ item.fileUrl ? `<a href="${escapeAttr(item.fileUrl)}" target="_blank" style="background:#222;color:#fff;padding:8px 10px;border-radius:8px;text-decoration:none">فتح الملف</a>` : '' }
             </div>
           `;
