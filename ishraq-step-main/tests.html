@@ -23,11 +23,20 @@
   .test-meta p{margin:0;color:#af9aa8}
   .back{display:inline-block;margin:12px 0;padding:8px 12px;background:#fff;color:var(--accent);border-radius:8px;text-decoration:none}
   .muted{color:#9aa3af;font-size:13px}
+  .loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;flex-direction:column;gap:20px}
+  .loading-overlay.hidden{display:none}
+  .loading-spinner{width:60px;height:60px;border:4px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin-large 0.8s linear infinite}
+  @keyframes spin-large{to{transform:rotate(360deg)}}
+  .loading-text{color:#fff;font-size:16px;text-align:center}
 </style>
 
   <link rel="stylesheet" href="css/open-sidebar.css">
 </head>
 <body>
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">جاري تحميل البيانات...</div>
+  </div>
   
   <input type="checkbox" id="toggleSidebar">
  <label for="toggleSidebar" class="toggle-btn">
@@ -57,6 +66,7 @@
     import { db } from './chat/js/fb.js';
     import { ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const loader = document.getElementById('loader');
     const sectionsEl = document.getElementById('sections');
     const testsView = document.getElementById('tests-view');
@@ -80,6 +90,7 @@
         testsView.style.display = 'none';
         emptyEl.style.display = 'block';
         showLoader(false);
+        loadingOverlay.classList.add('hidden');
         return;
       }
       emptyEl.style.display = 'none';
@@ -96,9 +107,11 @@
       });
 
       showLoader(false);
+      loadingOverlay.classList.add('hidden');
     }, err=>{
       console.error(err);
       showLoader(false);
+      loadingOverlay.classList.add('hidden');
       sectionsEl.innerHTML = '<div class="muted">خطأ في تحميل البيانات</div>';
     });
 

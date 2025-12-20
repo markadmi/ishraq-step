@@ -28,11 +28,21 @@
     @media (max-width:600px){ .book-card{padding:12px} .book-description{min-height:30px} }
     @media(min-width:900px){ body{margin-inline-end:320px !important} }
     #siteSidebar{position:fixed;top:0;right:0;height:100vh;width:300px;border:0;z-index:9999}
+    .loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10001;flex-direction:column;gap:20px}
+    .loading-overlay.hidden{display:none}
+    .loading-spinner{width:60px;height:60px;border:4px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin-large 0.8s linear infinite}
+    @keyframes spin-large{to{transform:rotate(360deg)}}
+    .loading-text{color:#fff;font-size:16px;text-align:center}
   </style>
   <link rel="stylesheet" href="css/open-sidebar.css">
 </head>
 
 <body>
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">جاري تحميل البيانات...</div>
+  </div>
 
   <header>📖 المكتبة الإلكترونية - Ishraq Step</header>
 
@@ -59,6 +69,7 @@
     import { db } from './chat/js/fb.js';
     import { ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const booksContainer = document.getElementById('booksContainer');
     const categoriesContainer = document.getElementById('categoriesContainer');
 
@@ -163,6 +174,7 @@
         
         renderCategories(categories);
         renderFromCache();
+        loadingOverlay.classList.add('hidden');
       }
     } else {
       // البيانات الحقيقية من Firebase
@@ -179,9 +191,11 @@
 
         renderCategories(categories);
         renderFromCache();
+        loadingOverlay.classList.add('hidden');
       }, (err) => {
         booksContainer.innerHTML = '<div class="loading">خطأ في تحميل الكتب</div>';
         console.error(err);
+        loadingOverlay.classList.add('hidden');
       });
     }
   </script>

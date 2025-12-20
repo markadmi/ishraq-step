@@ -24,9 +24,9 @@
     </div>
   </div>
 
-  <script type="module" src="../../chat/js/fb.js"></script>
+  <script type="module" src="js/fb.js"></script>
   <script type="module">
-    import { db, storage } from '../../chat/js/fb.js';
+    import { db, storage } from './js/fb.js';
     import { ref as dbRef, push, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
@@ -97,4 +97,3 @@
   </script>
 </body>
 </html>
-
