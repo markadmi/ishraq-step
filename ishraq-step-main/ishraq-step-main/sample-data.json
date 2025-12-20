@@ -1,0 +1,69 @@
+{
+  "books": {
+    "book1": {
+      "title": "تعلم البرمجة بلغة JavaScript",
+      "author": "أحمد محمد",
+      "category": "برمجة",
+      "description": "كتاب شامل يغطي أساسيات لغة JavaScript والمزيد من المفاهيم المتقدمة.",
+      "pages": "350",
+      "size": "45 MB",
+      "rating": "4.5",
+      "coverUrl": "https://picsum.photos/300/420?random=1",
+      "fileUrl": "https://example.com/book1.pdf",
+      "content": "محتوى تفصيلي عن البرمجة...",
+      "createdAt": "2025-11-26"
+    },
+    "book2": {
+      "title": "مقدمة في علم البيانات",
+      "author": "فاطمة علي",
+      "category": "علم البيانات",
+      "description": "استكشف عالم تحليل البيانات والذكاء الاصطناعي مع أمثلة عملية.",
+      "pages": "280",
+      "size": "38 MB",
+      "rating": "4.8",
+      "coverUrl": "https://picsum.photos/300/420?random=2",
+      "fileUrl": "https://example.com/book2.pdf",
+      "content": "محتوى متقدم عن البيانات...",
+      "createdAt": "2025-11-25"
+    },
+    "book3": {
+      "title": "تصميم الواجهات الحديثة",
+      "author": "محمود حسن",
+      "category": "تصميم",
+      "description": "دليل عملي لتصميم واجهات مستخدم جميلة وسهلة الاستخدام.",
+      "pages": "220",
+      "size": "52 MB",
+      "rating": "4.7",
+      "coverUrl": "https://picsum.photos/300/420?random=3",
+      "fileUrl": "https://example.com/book3.pdf",
+      "content": "نصائح وتقنيات التصميم...",
+      "createdAt": "2025-11-24"
+    },
+    "book4": {
+      "title": "أساسيات الشبكات والإنترنت",
+      "author": "سارة إبراهيم",
+      "category": "شبكات",
+      "description": "فهم عميق لكيفية عمل الشبكات والبروتوكولات المختلفة.",
+      "pages": "310",
+      "size": "41 MB",
+      "rating": "4.3",
+      "coverUrl": "https://picsum.photos/300/420?random=4",
+      "fileUrl": "https://example.com/book4.pdf",
+      "content": "معلومات تفصيلية عن الشبكات...",
+      "createdAt": "2025-11-23"
+    },
+    "book5": {
+      "title": "الأمن السيبراني للمبتدئين",
+      "author": "علي أحمد",
+      "category": "أمان",
+      "description": "حماية نفسك وبيانات عملك من التهديدات الرقمية.",
+      "pages": "265",
+      "size": "35 MB",
+      "rating": "4.6",
+      "coverUrl": "https://picsum.photos/300/420?random=5",
+      "fileUrl": "https://example.com/book5.pdf",
+      "content": "استراتيجيات الأمان الأساسية...",
+      "createdAt": "2025-11-22"
+    }
+  }
+}

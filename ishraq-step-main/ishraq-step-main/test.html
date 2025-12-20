@@ -306,7 +306,7 @@ function renderQuestion(){
             else if(saved === i) classes = 'choice-btn incorrect';
           }
           return `<button class="${classes}" onclick="selectAnswer(${i})" ${isSubmitted?'disabled':''}>
-             ${escapeHtml(c.text)}
+            ${String.fromCharCode(65+i)}: ${escapeHtml(c.text)}
           </button>`;
         }).join('')}
       </div>
