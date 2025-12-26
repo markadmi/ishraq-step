@@ -244,7 +244,13 @@ async function loadTest(){
     testData = snap.val();
     examTitle.textContent = testData.title || 'اختبار';
     
-    questions = (testData.questions || []).map(q => ({
+    // تحويل الأسئلة إلى مصفوفة (قد تكون array أو object)
+    let questionsData = testData.questions || [];
+    if (!Array.isArray(questionsData)) {
+      questionsData = Object.values(questionsData);
+    }
+    
+    questions = questionsData.map(q => ({
       id: q.id,
       text: q.text || '',
       imageUrl: q.imageUrl || '',

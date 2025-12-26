@@ -96,7 +96,10 @@
       emptyEl.style.display = 'none';
 
       // جمع الأقسام (subjects)
-      const subjects = Array.from(new Set(arr.map(i => (i.subject||'عام').trim()))).filter(Boolean);
+      const subjects = Array.from(new Set(arr.map(i => {
+        const subject = i.subject ? i.subject.trim() : '';
+        return subject || 'عام';
+      }))).filter(Boolean);
       sectionsEl.innerHTML = '';
       subjects.forEach(s=>{
         const d = document.createElement('div');
