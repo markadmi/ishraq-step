@@ -1,66 +1,74 @@
-/* تنسيق عام */
+/* تنسيق عام للمحتوى ليدعم الإزاحة */
 body {
-  margin: 0;
-  font-family: sans-serif;
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    overflow-x: hidden; /* لمنع ظهور شريط تمرير عرضي أثناء الحركة */
 }
 
-/* checkbox مخفي للتحكم بالقائمة */
+/* checkbox مخفي */
 #toggleSidebar {
-  display: none;
+    display: none;
 }
 
-/* زر التحكم ثابت فوق كل شيء */
+/* زر التحكم الاحترافي */
 .toggle-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #4caf50;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  z-index: 99999; /* أعلى من iframe */
-  transition: transform .4s ease;
+    position: fixed;
+    top: 20px;
+    right: 20px; /* يبدأ من اليمين */
+    width: 50px;
+    height: 50px;
+    background: #ff8a00; /* لون إشراق الأساسي */
+    color: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100000; /* فوق الـ iframe */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 24px;
 }
 
-/* تغير شكل الزر عند فتح القائمة */
-#toggleSidebar:checked + .toggle-btn::after {
-  content: " ✖"; /* يظهر × عند فتح القائمة */
-  margin-left: 8px;
+/* حركة الزر "الزحف" مع القائمة */
+#toggleSidebar:checked + .toggle-btn {
+    right: 320px; /* يتحرك لليسار بمقدار عرض القائمة + مسافة جمالية */
+    background: #e74c3c; /* يتغير لونه للأحمر عند الفتح */
+    transform: rotate(180deg);
 }
 
-/* القائمة الجانبية مخفية افتراضيًا */
+/* القائمة الجانبية (iframe) */
 #siteSidebar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 300px;
-  height: 100vh;
-  border: 0;
-  z-index: 9999;
-  background: #fff;
-  transform: translateX(100%); /* مخفية */
-  transition: transform .4s ease;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    border: 0;
+    z-index: 9999;
+    background: #fff;
+    box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+    transform: translateX(100%); /* مخفية تماماً خلف الحافة */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* عند الضغط على الزر تظهر القائمة */
+/* إظهار القائمة عند التفعيل */
 #toggleSidebar:checked ~ #siteSidebar {
-  transform: translateX(0); /* تظهر */
+    transform: translateX(0);
 }
 
-/* المحتوى الرئيسي */
-.main-content {
-  padding: 20px;
-  transition: margin-right .4s ease;
+/* إزاحة المحتوى الرئيسي (اختياري للشاشات الكبيرة) */
+.container {
+    transition: margin-right 0.4s ease;
 }
 
 @media (min-width: 900px) {
-  .main-content {
-    margin-right: 0; /* تبدأ بدون أي حافة */
-  }
+    #toggleSidebar:checked ~ .container {
+        margin-right: 300px;
+    }
+}
 
-  #toggleSidebar:checked ~ .main-content {
-    margin-right: 300px; /* مساحة القائمة عند ظهورها */
-  }
+/* تأثير بسيط للأيقونة داخل الزر */
+.toggle-btn span {
+    transition: transform 0.4s;
 }
