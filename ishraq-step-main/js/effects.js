@@ -1,43 +1,3 @@
-// متغير لتخزين حدث التثبيت
-let deferredPrompt;
-
-// الاستماع لحدث beforeinstallprompt
-window.addEventListener('beforeinstallprompt', (e) => {
-  // منع ظهور النافذة الافتراضية
-  e.preventDefault();
-  // تخزين الحدث
-  deferredPrompt = e;
-  // عرض زر التثبيت (اختياري)
-  showInstallPrompt();
-});
-
-// دالة لعرض نافذة طلب التثبيت
-function showInstallPrompt() {
-  // نافذة تأكيد مخصصة
-  const userChoice = confirm('هل تود تثبيت تطبيق Ishraq Step على جهازك للوصول السريع والعمل بدون إنترنت؟');
-  
-  if (userChoice && deferredPrompt) {
-    // عرض نافذة التثبيت الأصلية
-    deferredPrompt.prompt();
-    
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('تم تثبيت التطبيق بنجاح!');
-      } else {
-        console.log('تم رفض تثبيت التطبيق');
-      }
-      deferredPrompt = null;
-    });
-  }
-}
-
-// الاستماع لحدث التثبيت الناجح
-window.addEventListener('appinstalled', () => {
-  console.log('تم تثبيت تطبيق Ishraq Step بنجاح!');
-  // حذف متغير التثبيت بعد التثبيت الناجح
-  deferredPrompt = null;
-});
-
     // تعامل بسيط مع الأزرار (تأثيرات مؤقتة)
     document.getElementById('learnBtn').addEventListener('click', function(){
       // محاكاة انتقال - استبدل الروابط حسب حاجتك
@@ -47,7 +7,7 @@ window.addEventListener('appinstalled', () => {
         { transform: 'translateY(0)' }
       ], { duration: 350, easing: 'ease-out' });
       // افتراضي: فتح صفحة دورات (اضبط href لاحقًا)
-     window.location.href = "ishraq-step-cours.html";
+     window.location.href = "learn/languages.html";
     });
 
     // تحقّق من وجود العنصر قبل إضافة المستمع

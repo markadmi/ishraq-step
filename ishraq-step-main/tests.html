@@ -128,8 +128,9 @@
       // قراءة مرة واحدة من DB
       onValue(testsRef, snapshot=>{
         const data = snapshot.val() || {};
+        const normalizedSubject = (subject ? subject.trim() : '') || 'عام';
         const arr = Object.entries(data)
-          .filter(([k,v]) => ((v.subject||'').trim() || 'عام') === (subject || 'عام'))
+          .filter(([k,v]) => ((v.subject||'').trim() || 'عام') === normalizedSubject)
           .sort((a,b)=> new Date(b[1].createdAt||0) - new Date(a[1].createdAt||0));
         if(arr.length === 0){
           testsList.innerHTML = '<div class="muted">لا توجد اختبارات في هذا القسم.</div>';

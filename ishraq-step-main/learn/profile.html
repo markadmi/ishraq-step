@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <title>الملف الشخصي - Ishraq Step</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-orange: #ff8a00;
+      --primary-yellow: #ffd166;
+      --glass-bg: rgba(20, 20, 20, 0.8);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --danger: #ff4b4b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #000;
+      background-image: radial-gradient(circle at 50% 0%, #111 0%, #000 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      overflow: hidden;
+    }
+
+    .bg-shape { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.2; animation: float 15s infinite alternate; }
+    .shape-1 { width: 300px; height: 300px; background: var(--primary-orange); top: -50px; left: -50px; }
+    .shape-2 { width: 400px; height: 400px; background: #004e92; bottom: -100px; right: -100px; }
+    @keyframes float { from { transform: translate(0,0); } to { transform: translate(40px, 40px); } }
+
+    .profile-card {
+      width: 95%; max-width: 450px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(25px);
+      border: 1px solid var(--glass-border);
+      border-radius: 35px;
+      padding: 40px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .avatar-wrapper { position: relative; width: 115px; height: 115px; margin: 0 auto 15px; }
+    .profile-img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #fff; object-fit: cover; }
+    .add-photo-btn {
+      position: absolute; bottom: 5px; right: 5px; background: #0095f6;
+      width: 30px; height: 30px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; border: 2px solid #000;
+      cursor: pointer; color: white;
+    }
+
+    .user-name-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .edit-name-icon { font-size: 16px; color: #888; cursor: pointer; }
+
+    .role-badge { background: rgba(255,255,255,0.1); padding: 3px 15px; border-radius: 20px; font-size: 12px; color: #ccc; }
+
+    .stats-container {
+      display: flex; justify-content: space-around; margin: 30px 0;
+      border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 20px 0;
+    }
+    .stat-num { display: block; font-weight: 800; font-size: 20px; color: var(--primary-yellow); }
+    .stat-label { font-size: 11px; color: #888; }
+
+    .actions { display: flex; flex-direction: column; gap: 12px; }
+    .btn { padding: 14px; border-radius: 15px; border: none; font-family: 'Cairo'; font-weight: 700; cursor: pointer; }
+    .btn-outline { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); }
+    .btn-logout { color: var(--danger); background: transparent; font-size: 14px; }
+
+    .dialog-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; backdrop-filter: blur(8px);
+    }
+    .dialog-box { background: #151515; width: 90%; max-width: 350px; padding: 30px; border-radius: 25px; text-align: right; }
+    .dialog-box input { width: 100%; padding: 12px; background: #202020; border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 20px; outline: none; }
+    .dialog-buttons { display: flex; gap: 10px; }
+    .btn-confirm { flex: 2; background: var(--primary-orange); color: #000; }
+    .btn-cancel { flex: 1; background: #333; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <div class="profile-card">
+    <div class="avatar-wrapper">
+      <img id="profileImg" src="" class="profile-img" alt="User">
+      <div class="add-photo-btn" onclick="openAvatarDialog()">
+        <i class="fas fa-plus"></i>
+      </div>
+    </div>
+
+    <div class="user-name-row">
+      <h1 id="userNameDisplay">جاري التحميل...</h1>
+      <i class="fas fa-pen edit-name-icon" onclick="openNameDialog()"></i>
+    </div>
+    <span class="role-badge" id="roleDisplay">طالب</span>
+
+    <div class="stats-container">
+      <div class="stat-box">
+        <span class="stat-num" id="javaCount">0</span>
+        <span class="stat-label">Java</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" id="cppCount">0</span>
+        <span class="stat-label">C++</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" id="pythonCount">0</span>
+        <span class="stat-label">Python</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" id="jsCount">0</span>
+        <span class="stat-label">JS</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="location.href='chat.html'">العودة للدردشة</button>
+      <button class="btn btn-logout" id="logoutBtn">تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <div id="nameDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <h3>تعديل اسمك</h3>
+      <input type="text" id="newNameInput">
+      <div class="dialog-buttons">
+        <button class="btn btn-confirm" onclick="saveName()">حفظ</button>
+        <button class="btn btn-cancel" onclick="closeDialogs()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="avatarDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <h3>تحديث الصورة</h3>
+      <input type="text" id="newAvatarInput" placeholder="رابط الصورة المباشر">
+      <div class="dialog-buttons">
+        <button class="btn btn-confirm" onclick="saveAvatar()">تحديث</button>
+        <button class="btn btn-cancel" onclick="closeDialogs()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+<script type="module">
+    import { db } from '../chat/js/fb.js'; 
+    import { ref, query, orderByChild, equalTo, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    const deviceId = localStorage.getItem('device_id');
+    const sessionStr = localStorage.getItem('chat_session');
+    
+    // ربط عناصر الواجهة
+    const profileImg = document.getElementById('profileImg');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const roleDisplay = document.getElementById('roleDisplay');
+
+    let currentUserKey = null;
+
+    if (deviceId) {
+        const usersRef = ref(db, 'users');
+        // البحث عن المستخدم الذي يملك هذا الـ deviceId
+        const userQuery = query(usersRef, orderByChild('deviceId'), equalTo(deviceId));
+
+        onValue(userQuery, (snapshot) => {
+            if (snapshot.exists()) {
+                const results = snapshot.val();
+                // استخراج المفتاح الفريد (مثل -Of09stuMkW51-EetVAl)
+                currentUserKey = Object.keys(results)[0]; 
+                const userData = results[currentUserKey];
+
+                // عرض المستويات البرمجية بدقة كما في بياناتك
+                document.getElementById('javaCount').innerText = userData.java || 0;
+                document.getElementById('cppCount').innerText = userData.cpp || 0;
+                document.getElementById('pythonCount').innerText = userData.python || 0;
+                document.getElementById('jsCount').innerText = userData.javascript || 0; // استخدام javascript
+
+                // عرض المعلومات الأساسية
+                userNameDisplay.innerText = userData.name || "مستخدم";
+                profileImg.src = userData.avatarUrl || "";
+                roleDisplay.innerText = userData.role || "طالب";
+
+                // تحديث الجلسة المحلية لضمان مزامنة الاسم في الشات
+                if (sessionStr) {
+                    let session = JSON.parse(sessionStr);
+                    session.userKey = currentUserKey;
+                    session.name = userData.name;
+                    localStorage.setItem('chat_session', JSON.stringify(session));
+                }
+            } else {
+                userNameDisplay.innerText = "مستخدم جديد";
+            }
+        });
+    }
+
+    // وظائف الحفظ (تستخدم currentUserKey الذي تم استخراجه أعلاه)
+    window.saveName = async () => {
+        const newName = document.getElementById('newNameInput').value.trim();
+        if (newName && currentUserKey) {
+            await update(ref(db, `users/${currentUserKey}`), { name: newName });
+            closeDialogs();
+        }
+    };
+
+    window.saveAvatar = async () => {
+        const newUrl = document.getElementById('newAvatarInput').value.trim();
+        if (newUrl && currentUserKey) {
+            await update(ref(db, `users/${currentUserKey}`), { avatarUrl: newUrl });
+            closeDialogs();
+        }
+    };
+
+    // إغلاق النوافذ وتسجيل الخروج
+    window.closeDialogs = () => document.querySelectorAll('.dialog-overlay').forEach(d => d.style.display = 'none');
+    document.getElementById('logoutBtn').onclick = () => {
+        localStorage.removeItem('chat_session');
+        window.location.href = 'start.html';
+    };
+</script>
+</body>
+</html>
