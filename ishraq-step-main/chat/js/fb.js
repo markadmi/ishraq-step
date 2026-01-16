@@ -3,7 +3,7 @@ import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 // تم تعطيل استيراد App Check مؤقتاً لإصلاح مشكلة جلب الأرقام
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
-
+  
 const firebaseConfig = {
   apiKey: "AIzaSyCzokitueX9Ph_LNUekRpG0MZxpPkgcEiQ",
   authDomain: "hacker-withdraw-photos.firebaseapp.com",
@@ -17,12 +17,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-
+/*
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LcIJSIsAAAAAHprEO_Iqla-2zSWt2T463Au-S8j'),
   isTokenAutoRefreshEnabled: true 
 });
-
+*/
 
 export const db = getDatabase(app);
+
 export const storage = getStorage(app);
