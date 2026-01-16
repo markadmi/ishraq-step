@@ -147,14 +147,14 @@
       </div>
     </div>
   </div>
-   <script type="module">
-    // تأكد أن المسار المكتوب هو المسار الفعلي لملف fb.js على الاستضافة
+<script type="module">
     import { db } from '../chat/js/fb.js'; 
     import { ref, query, orderByChild, equalTo, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
     const deviceId = localStorage.getItem('device_id');
     const sessionStr = localStorage.getItem('chat_session');
     
+    // ربط عناصر الواجهة
     const profileImg = document.getElementById('profileImg');
     const userNameDisplay = document.getElementById('userNameDisplay');
     const roleDisplay = document.getElementById('roleDisplay');
@@ -163,83 +163,63 @@
 
     if (deviceId) {
         const usersRef = ref(db, 'users');
-        // البحث باستخدام deviceId يتطلب وجود ".indexOn": ["deviceId"] في قواعد Firebase
+        // البحث عن المستخدم الذي يملك هذا الـ deviceId
         const userQuery = query(usersRef, orderByChild('deviceId'), equalTo(deviceId));
 
         onValue(userQuery, (snapshot) => {
             if (snapshot.exists()) {
                 const results = snapshot.val();
-                // استخراج المفتاح الفريد (Push ID) للدخول إلى البيانات
+                // استخراج المفتاح الفريد (مثل -Of09stuMkW51-EetVAl)
                 currentUserKey = Object.keys(results)[0]; 
                 const userData = results[currentUserKey];
 
-                // تحديث واجهة المستخدم بالأرقام الحقيقية
+                // عرض المستويات البرمجية بدقة كما في بياناتك
                 document.getElementById('javaCount').innerText = userData.java || 0;
                 document.getElementById('cppCount').innerText = userData.cpp || 0;
                 document.getElementById('pythonCount').innerText = userData.python || 0;
-                
-                // التعديل الهام: استخدام المسمى الكامل 'javascript' كما هو في DB
-                document.getElementById('jsCount').innerText = userData.javascript || 0; 
+                document.getElementById('jsCount').innerText = userData.javascript || 0; // استخدام javascript
 
+                // عرض المعلومات الأساسية
                 userNameDisplay.innerText = userData.name || "مستخدم";
-                profileImg.src = userData.avatarUrl || "default-avatar.png";
+                profileImg.src = userData.avatarUrl || "";
                 roleDisplay.innerText = userData.role || "طالب";
 
-                // تحديث الجلسة المحلية لضمان مزامنة البيانات
+                // تحديث الجلسة المحلية لضمان مزامنة الاسم في الشات
                 if (sessionStr) {
                     let session = JSON.parse(sessionStr);
                     session.userKey = currentUserKey;
                     session.name = userData.name;
-                    session.avatarUrl = userData.avatarUrl;
                     localStorage.setItem('chat_session', JSON.stringify(session));
                 }
             } else {
-                userNameDisplay.innerText = "بيانات غير متوفرة";
-                console.warn("No data found for deviceId:", deviceId);
-            }
-        }, (error) => {
-            // رصد أخطاء الوصول الناتجة عن App Check أو Rules
-            console.error("Firebase Error:", error.message);
-            if (error.message.includes("permission_denied")) {
-                userNameDisplay.innerText = "خطأ في صلاحيات الوصول";
+                userNameDisplay.innerText = "مستخدم جديد";
             }
         });
-    } else {
-        window.location.href = 'start.html';
     }
 
-    // وظائف التعديل
+    // وظائف الحفظ (تستخدم currentUserKey الذي تم استخراجه أعلاه)
     window.saveName = async () => {
         const newName = document.getElementById('newNameInput').value.trim();
         if (newName && currentUserKey) {
-            try {
-                await update(ref(db, `users/${currentUserKey}`), { name: newName });
-                closeDialogs();
-            } catch (err) { alert("فشل تحديث الاسم"); }
+            await update(ref(db, `users/${currentUserKey}`), { name: newName });
+            closeDialogs();
         }
     };
 
     window.saveAvatar = async () => {
         const newUrl = document.getElementById('newAvatarInput').value.trim();
         if (newUrl && currentUserKey) {
-            try {
-                await update(ref(db, `users/${currentUserKey}`), { avatarUrl: newUrl });
-                closeDialogs();
-            } catch (err) { alert("فشل تحديث الصورة"); }
+            await update(ref(db, `users/${currentUserKey}`), { avatarUrl: newUrl });
+            closeDialogs();
         }
     };
 
-    window.closeDialogs = () => {
-        document.querySelectorAll('.dialog-overlay').forEach(d => d.style.display = 'none');
-    };
-
+    // إغلاق النوافذ وتسجيل الخروج
+    window.closeDialogs = () => document.querySelectorAll('.dialog-overlay').forEach(d => d.style.display = 'none');
     document.getElementById('logoutBtn').onclick = () => {
-        if (confirm("هل تريد تسجيل الخروج؟")) {
-            localStorage.removeItem('chat_session');
-            window.location.href = 'start.html';
-        }
+        localStorage.removeItem('chat_session');
+        window.location.href = 'start.html';
     };
 </script>
 </body>
-
 </html>
