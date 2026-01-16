@@ -17,12 +17,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-
+/*
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LcIJSIsAAAAAHprEO_Iqla-2zSWt2T463Au-S8j'),
   isTokenAutoRefreshEnabled: true 
 });
-
+*/
 
 export const db = getDatabase(app);
+
 export const storage = getStorage(app);
