@@ -1,4 +1,4 @@
-const levelData = {
+export const levelData = {
   python: {
     name: '🐍 Python',
     levels: [
@@ -59,4 +59,5 @@ const levelData = {
       { id: 10, title: 'كلاسات وهياكل البيانات', description: 'مقدمة في الـ OOP والهياكل', topics: 'class, struct, access modifiers' }
     ]
   }
+
 };
