@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,10 +37,10 @@
 
     <script>
         const languages = {
-            python: { name: 'Python', icon: '🐍', desc: 'لغة الذكاء الاصطناعي والسهولة الممتنعة.', color: '#dd8448' },
-            javascript: { name: 'JavaScript', icon: '⚡', desc: 'لغة الويب التفاعلية والعصر الحديث.', color: '#f7df1e' },
-            java: { name: 'Java', icon: '☕', desc: 'الأساس القوي للتطبيقات الضخمة والآمنة.', color: '#007396' },
-            cpp: { name: 'C++', icon: '⚙️', desc: 'لغة الأداء الأقصى والتحكم الكامل في الذاكرة.', color: '#00599c' }
+            python: { name: 'Python', icon: '../image/python.png', desc: 'لغة الذكاء الاصطناعي والسهولة الممتنعة.', color: '#dd8448' },
+            javascript: { name: 'JavaScript', icon: '../image/javascript.png', desc: 'لغة الويب التفاعلية والعصر الحديث.', color: '#f7df1e' },
+            java: { name: 'Java', icon: '../image/java.png', desc: 'الأساس القوي للتطبيقات الضخمة والآمنة.', color: '#ff0000' },
+            cpp: { name: 'C++', icon: '../image/cpp.png', desc: 'لغة الأداء الأقصى والتحكم الكامل في الذاكرة.', color: '#0000ff' }
         };
 
         const container = document.getElementById('languagesContainer');
@@ -62,11 +62,10 @@
                 <div class="overlay-1"></div>
                 <div class="overlay-2"></div>
                 <div class="background-glow"></div>
+
                 <div class="content-container">
                     <div class="content-top">
-                        <div class="scrollbar-glass">${key.toUpperCase()}</div>
-                        <div class="language-icon-large">${lang.icon}</div>
-                        <p class="title">${lang.name}</p>
+                       <img src="${lang.icon}" width="48" height="48" alt="${lang.name} رمز">
                     </div>
                     <hr class="divider" />
                     <div class="content-bottom">

@@ -6,11 +6,13 @@
 }
 
 :root {
+ --color-neutral-900: oklch(0.185 0 0);
     --electric-border-color: #dd8448; /* لون افتراضي سيتم تغييره ديناميكياً من JS */
     --electric-light-color: oklch(from var(--electric-border-color) l c h);
     --gradient-color: oklch(from var(--electric-border-color) 0.3 calc(c / 2) h / 0.4);
-    --color-neutral-900: oklch(0.185 0 0);
+
 }
+
 
 body {
     font-family: 'Cairo', system-ui, -apple-system, sans-serif;
@@ -56,7 +58,7 @@ body {
 /* --- طبقة الكهرباء (Main Card) --- */
 .main-card {
     width: 280px;  /* الحجم المصغر المعتمد */
-    height: 400px; /* الحجم المصغر المعتمد */
+    height: 250px; /* الحجم المصغر المعتمد */
     border-radius: 24px;
     border: 2px solid var(--electric-border-color);
     margin-top: -4px;

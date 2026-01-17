@@ -147,79 +147,94 @@
       </div>
     </div>
   </div>
+   
+
+ <script>
+    // هذه الدوال ستعمل دائماً سواء كان هناك إنترنت أم لا
+    function openNameDialog() {
+        const dialog = document.getElementById('nameDialog');
+        const currentName = document.getElementById('userNameDisplay').innerText;
+        document.getElementById('newNameInput').value = currentName;
+        dialog.style.display = 'flex';
+    }
+
+    function openAvatarDialog() {
+        const dialog = document.getElementById('avatarDialog');
+        const currentImg = document.getElementById('profileImg').src;
+        document.getElementById('newAvatarInput').value = currentImg;
+        dialog.style.display = 'flex';
+    }
+
+    function closeDialogs() {
+        const dialogs = document.querySelectorAll('.dialog-overlay');
+        dialogs.forEach(dialog => {
+            dialog.style.display = 'none';
+        });
+    }
+
+    // تعريف دوال الحفظ كدوال فارغة مؤقتاً لتجنب الأخطاء إذا لم يعمل الفايربيس
+    window.saveName = function() { alert("لا يوجد اتصال بالإنترنت!"); };
+    window.saveAvatar = function() { alert("لا يوجد اتصال بالإنترنت!"); };
+</script>
+
 <script type="module">
     import { db } from '../chat/js/fb.js'; 
     import { ref, query, orderByChild, equalTo, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
     const deviceId = localStorage.getItem('device_id');
     const sessionStr = localStorage.getItem('chat_session');
-    
-    // ربط عناصر الواجهة
-    const profileImg = document.getElementById('profileImg');
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const roleDisplay = document.getElementById('roleDisplay');
-
     let currentUserKey = null;
 
+    // 1. إعادة تعريف دوال الحفظ لتعمل مع الفايربيس (Overwrite)
+    window.saveName = async function() {
+        const newName = document.getElementById('newNameInput').value;
+        if (currentUserKey && newName) {
+            try {
+                await update(ref(db, `users/${currentUserKey}`), { name: newName });
+                closeDialogs(); // نستدعي دالة الإغلاق العادية
+            } catch (error) {
+                console.error(error);
+                alert("حدث خطأ في الحفظ");
+            }
+        }
+    };
+
+    window.saveAvatar = async function() {
+        const newUrl = document.getElementById('newAvatarInput').value;
+        if (currentUserKey && newUrl) {
+            try {
+                await update(ref(db, `users/${currentUserKey}`), { avatarUrl: newUrl });
+                closeDialogs();
+            } catch (error) {
+                console.error(error);
+                alert("حدث خطأ في الحفظ");
+            }
+        }
+    };
+
+    // 2. جلب البيانات (كما في الكود السابق)
     if (deviceId) {
         const usersRef = ref(db, 'users');
-        // البحث عن المستخدم الذي يملك هذا الـ deviceId
         const userQuery = query(usersRef, orderByChild('deviceId'), equalTo(deviceId));
 
         onValue(userQuery, (snapshot) => {
             if (snapshot.exists()) {
-                const results = snapshot.val();
-                // استخراج المفتاح الفريد (مثل -Of09stuMkW51-EetVAl)
-                currentUserKey = Object.keys(results)[0]; 
-                const userData = results[currentUserKey];
+                const data = snapshot.val();
+                currentUserKey = Object.keys(data)[0];
+                const userData = data[currentUserKey];
 
-                // عرض المستويات البرمجية بدقة كما في بياناتك
+                document.getElementById('userNameDisplay').innerText = userData.name || "مستخدم";
+                document.getElementById('profileImg').src = userData.avatarUrl || "";
+                document.getElementById('roleDisplay').innerText = userData.role || "طالب";
+                
                 document.getElementById('javaCount').innerText = userData.java || 0;
                 document.getElementById('cppCount').innerText = userData.cpp || 0;
                 document.getElementById('pythonCount').innerText = userData.python || 0;
-                document.getElementById('jsCount').innerText = userData.javascript || 0; // استخدام javascript
-
-                // عرض المعلومات الأساسية
-                userNameDisplay.innerText = userData.name || "مستخدم";
-                profileImg.src = userData.avatarUrl || "";
-                roleDisplay.innerText = userData.role || "طالب";
-
-                // تحديث الجلسة المحلية لضمان مزامنة الاسم في الشات
-                if (sessionStr) {
-                    let session = JSON.parse(sessionStr);
-                    session.userKey = currentUserKey;
-                    session.name = userData.name;
-                    localStorage.setItem('chat_session', JSON.stringify(session));
-                }
-            } else {
-                userNameDisplay.innerText = "مستخدم جديد";
+                document.getElementById('jsCount').innerText = userData.javascript || 0;
             }
         });
     }
-
-    // وظائف الحفظ (تستخدم currentUserKey الذي تم استخراجه أعلاه)
-    window.saveName = async () => {
-        const newName = document.getElementById('newNameInput').value.trim();
-        if (newName && currentUserKey) {
-            await update(ref(db, `users/${currentUserKey}`), { name: newName });
-            closeDialogs();
-        }
-    };
-
-    window.saveAvatar = async () => {
-        const newUrl = document.getElementById('newAvatarInput').value.trim();
-        if (newUrl && currentUserKey) {
-            await update(ref(db, `users/${currentUserKey}`), { avatarUrl: newUrl });
-            closeDialogs();
-        }
-    };
-
-    // إغلاق النوافذ وتسجيل الخروج
-    window.closeDialogs = () => document.querySelectorAll('.dialog-overlay').forEach(d => d.style.display = 'none');
-    document.getElementById('logoutBtn').onclick = () => {
-        localStorage.removeItem('chat_session');
-        window.location.href = 'start.html';
-    };
 </script>
+
 </body>
-</html>
+</html>>
