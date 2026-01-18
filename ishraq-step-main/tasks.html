@@ -196,7 +196,7 @@
 
   <script type="module">
     const deviceId = localStorage.getItem('device_id');
-    import { db } from '../chat/js/fb.js'; 
+    import { db } from './chat/js/fb.js'; 
     import { ref, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     dbRef = ref(db);
@@ -214,17 +214,22 @@
       console.log("ℹ️ لا توجد بيانات مستخدمين في Firebase.");
     }
 
-  </script>
-
-  <script type="module"> 
     const tasksData = [
       { id: 1, title: "تحميل بيئة العمل (IDE)", desc: "تثبيت الأدوات الأساسية للبدء.", link: "https://code.visualstudio.com/" },
-      { id: 2, title: "طباعة اول نص لك", desc: "أول برنامج لك في عالم البرمجة.", link: "page2.html" },
-      { id: 3, title: "فهم المتغيرات", desc: "كيف يخزن الكمبيوتر البيانات؟", link: "variables.html" },
-      { id: 4, title: "العمليات الحسابية", desc: "الجمع والطرح والضرب برمجياً.", link: "math.html" },
-      { id: 5, title: "الشروط والمنطق", desc: "اتخاذ القرارات داخل الكود.", link: "logic.html" },
-      { id: 6, title: "الحلقات التكرارية", desc: "تكرار المهام بدون إعادة كتابة الكود.", link: "loops.html" },
-      { id: 7, title: "المصفوفات", desc: "تخزين قوائم البيانات بكفاءة.", link: "arrays.html" }
+      { id: 2, title: "طباعة اول نص لك", desc: "أول برنامج لك في عالم البرمجة.", link: "./learn/languages.html" },
+      { id: 3, title: "فهم المتغيرات", desc: "كيف يخزن الكمبيوتر البيانات؟", link: "./learn/languages.html" },
+      { id: 4, title: "العمليات الحسابية", desc: "الجمع والطرح والضرب برمجياً.", link: "./learn/languages.html" },
+      { id: 5, title: "الشروط والمنطق", desc: "اتخاذ القرارات داخل الكود.", link: "./learn/languages.html" },
+      { id: 6, title: "الحلقات التكرارية", desc: "تكرار المهام بدون إعادة كتابة الكود.", link: "./learn/languages.html" },
+      { id: 7, title: "اكمل حتا الدرس 7", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 8, title: "اكمل حتا الدرس 8", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 9, title: "اكمل حتا الدرس 9", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 10, title: "اكمل حتا الدرس 10", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 11, title: "اكمل حتا الدرس 11", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 12, title: "اكمل حتا الدرس 12", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 13, title: "اكمل حتا الدرس 13", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 14, title: "اكمل حتا الدرس 14", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" },
+      { id: 15, title: "اكمل حتا الدرس 15", desc: "بعد اتقان الاساسيات يجب اكمال المستويات للاحتراف", link: "./learn/languages.html" }
     ];
  
 
@@ -246,7 +251,7 @@
           <div class="task-number">${isCompleted ? '✔' : task.id}</div>
           <div class="task-card ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}">
             <div class="task-info">
-              <h3>${task.title}</h3>
+              <h5>${task.title}</h5>
               <p>${task.desc}</p>
               ${isActive ? `<button class="action-btn" onclick="goToTask('${task.link}')">بدء المهمة الآن</button>` : ''}
               ${isCompleted ? `<p style="color: var(--success-green); font-weight: bold; margin-top:10px;">✅ مكتملة</p>` : ''}
@@ -260,13 +265,11 @@
       updateProgressBar();
     }
 
-    function goToTask(url) {
-      // زيادة العداد وحفظ التقدم
-      tasks = maxlanguage + 1;
+    window.goToTask = function(url) {
+     tasks = window.maxlanguage +1;
+     localStorage.setItem('ishraq_tasks_done', tasks);
+     render();
 
-      localStorage.setItem('ishraq_tasks_done', tasks);
-      render();
-      
       // الانتقال للرابط
       setTimeout(() => {
         window.location.href = url; // فعل هذا السطر عند جاهزية الروابط    
@@ -284,7 +287,6 @@
         lineFill.style.height = `${percentage}%`;
       }
     }
-
     render();
   </script>
 </body>
