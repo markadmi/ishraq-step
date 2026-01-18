@@ -365,10 +365,10 @@
     const savedSession = localStorage.getItem('chat_session');
     if (savedSession) {
       try {
+        // اذا كنت مسجل الدخول بي الفعل
         const session = JSON.parse(savedSession);
-
         window.location.href = '../index.html'; 
-        
+
       } catch (e) {
         localStorage.removeItem('chat_session');
       }

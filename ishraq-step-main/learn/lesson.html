@@ -175,35 +175,36 @@
 
     // دالة تحديث التقدم في Firebase
     window.saveProgress = async function(currentLang, solvedLevel) {
-        const deviceId = localStorage.getItem('device_id');
+      const deviceId = localStorage.getItem('device_id');
         if (!deviceId) return;
 
         try {
-            const dbRef = ref(db);
-            // البحث عن المستخدم باستخدام deviceId
-            const snapshot = await get(child(dbRef, `users`));
+         const dbRef = ref(db);
+         // البحث عن المستخدم باستخدام deviceId
+         const snapshot = await get(child(dbRef, `users`));
             
-            if (snapshot.exists()) {
-                const users = snapshot.val();
-                const userKey = Object.keys(users).find(key => users[key].deviceId === deviceId);
+          if (snapshot.exists()) {
+            const users = snapshot.val();
+            const userKey = Object.keys(users).find(key => users[key].deviceId === deviceId);
                 
-                if (userKey) {
-                    const userData = users[userKey];
-                    const currentStoredLevel = userData[currentLang] || 0;
+            if (userKey) {
+              const userData = users[userKey];
+              const currentStoredLevel = userData[currentLang] || 0;
 
-                    // المنطق: نحدث فقط إذا كان المستوى الذي حله هو المستوى التالي أو أكبر
-                    if (solvedLevel > currentStoredLevel) {
-                        await update(ref(db, `users/${userKey}`), {
-                            [currentLang]: solvedLevel
-                        });
-                        console.log("✅ تم تحديث مستواك بنجاح في قاعدة البيانات");
-                    } else {
-                        console.log("ℹ️ أنت تراجع مستوى قديم، لا حاجة لتحديث البيانات.");
-                    }
-                }
+              // المنطق: نحدث فقط إذا كان المستوى الذي حله هو المستوى التالي أو أكبر
+              if (solvedLevel > currentStoredLevel) {
+                  await update(ref(db, `users/${userKey}`), {
+                    [currentLang]: solvedLevel
+                      });
+                console.log("✅ تم تحديث مستواك بنجاح في قاعدة البيانات");
+              } else {
+                console.log("ℹ️ أنت تراجع مستوى قديم، لا حاجة لتحديث البيانات.");
+              }
             }
+          }
         } catch (error) {
-            console.error("❌ خطأ أثناء تحديث Firebase:", error);
+          
+          نزظconsole.error("❌ خطأ أثناء تحديث Firebase:", error);
         }
     };
 
@@ -259,10 +260,10 @@
     }
 
     function syncScroll() {
-        const editor = document.getElementById('codeEditor');
-        const highlight = document.getElementById('highlightingArea');
-        highlight.scrollTop = editor.scrollTop;
-        highlight.scrollLeft = editor.scrollLeft;
+      const editor = document.getElementById('codeEditor');
+      const highlight = document.getElementById('highlightingArea');
+      highlight.scrollTop = editor.scrollTop;
+      highlight.scrollLeft = editor.scrollLeft;
     }
 
     async function runCode() {
@@ -279,20 +280,20 @@
 
         try {
             const res = await fetch('https://emkc.org/api/v2/piston/execute', {
-                method: 'POST',
-                body: JSON.stringify({
-                    "language": langMap[lang].l,
-                    "version": langMap[lang].v,
-                    "files": [{"content": code}]
-                })
+              method: 'POST',
+              body: JSON.stringify({
+                "language": langMap[lang].l,
+                "version": langMap[lang].v,
+                "files": [{"content": code}]
+              })
             });
             const result = await res.json();
             const output = result.run.stdout || result.run.stderr || "لا توجد مخرجات";
             outputBox.textContent = output;
             return output.trim();
         } catch (e) {
-            outputBox.textContent = "خطأ في الاتصال";
-            return null;
+          outputBox.textContent = "خطأ في الاتصال";
+          return null;
         }
     }
     
