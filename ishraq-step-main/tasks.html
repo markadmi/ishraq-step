@@ -199,7 +199,7 @@
     import { db } from './chat/js/fb.js'; 
     import { ref, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    dbRef = ref(db);
+    const dbRef = ref(db);
     const snapshot = await get(child(dbRef, `users`));
     if (snapshot.exists()) {
       const users = snapshot.val();
@@ -290,4 +290,5 @@
     render();
   </script>
 </body>
+
 </html>
