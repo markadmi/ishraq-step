@@ -300,7 +300,8 @@
    
    function vandc() {
       if(check == true) {
-       window.location.href = `levels.html`;
+        
+        history.go(-1);
        
       } else {
        
@@ -308,8 +309,6 @@
       }
     }
    
-
-  
     async function checkSolution() {
         const actual = await runCode();
         const msg = document.getElementById('resultMessage');

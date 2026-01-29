@@ -3,15 +3,17 @@ export const cpp = {
     title: 'الطباعة',
     description: 'تعلم كيفية استخدام cout لطباعة البيانات',
     content: `
+     <p>نستخدم // لكتابة تعليق بجانب الكود حتا يتجاهلها الكمبيوتر </p>
+     <p> في حاله عدم كتابه // قبل النص يعتبر الكمبيوتر ان النص كود </p>
+     <p> انظر الي الكود التالي لتعرف كيف تطبع نص</p>
       <pre>
-#include <iostream>
-using namespace std;
-
-int main() {
-    // cout تستخدم لطباعة النصوص
-    cout << "مرحبا بك";
-    return 0;
-}
+        #include <iostream>
+        using namespace std;
+        int main() {
+         // cout تستخدم لطباعة النصوص 
+         cout << "طباعة نص";
+         return 0;
+        }
       </pre>
     `,
     challenge: 'اطبع الرسالة: "أنا أتعلم البرمجة"',
@@ -22,17 +24,17 @@ int main() {
     description: 'تخزين البيانات باستخدام أنواع مختلفة',
     content: `
       <pre>
-#include <iostream>
-#include <string>
-using namespace std;
+       #include <iostream>
+       #include <string>
+       using namespace std;
 
-int main() {
-    // تحديد نوع المتغير مهم في C++
-    int x = 5;           // تخزين أعداد صحيحة
-    string name = "Ali"; // تخزين نصوص
-    cout << x;           // طباعة المتغير
-    return 0;
-}
+       int main() {
+         // تحديد نوع المتغير مهم في C++
+         int x = 5;           // تخزين أعداد صحيحة
+         string name = "Ali"; // تخزين نصوص
+         cout << x;           // طباعة المتغير
+         return 0;
+        }
       </pre>
     `,
     challenge: 'أنشئ متغير age بقيمة 25 واطبعه',
@@ -43,15 +45,17 @@ int main() {
     description: 'إجراء الحسابات الأساسية',
     content: `
       <pre>
-#include <iostream>
-using namespace std;
+       #include <iostream>
+       using namespace std;
 
-int main() {
-    // العمليات الحسابية: +, -, *, /, %
-    int sum = 10 + 20;
-    cout << sum; // طباعة الناتج
-    return 0;
-}
+        int main() {
+          // العمليات الحسابية: +, -, *, /, %
+          int sum = 10 + 20; //جمع
+          int sum = 10 * 20; //ضرب
+          int sum = 10 / 20; //قسمة
+          cout << sum; // طباعة الناتج
+          return 0;
+        }
       </pre>
     `,
     challenge: 'اطبع ناتج ضرب 6 في 7',
@@ -62,16 +66,16 @@ int main() {
     description: 'استخدام cin لاستقبال البيانات',
     content: `
       <pre>
-#include <iostream>
-using namespace std;
+       #include <iostream>
+       using namespace std;
 
-int main() {
-    int num;
-    // cin تأخذ قيمة من المستخدم
-    cin >> num;
-    cout << num;
-    return 0;
-}
+       int main() {
+        int num;
+        // cin تأخذ قيمة من المستخدم
+        cin >> num;
+        cout << num;
+        return 0;
+       }
       </pre>
     `,
     challenge: 'استخدم cin لاستقبال رقم واطبعه (افترض الإدخال 100)',
@@ -82,20 +86,20 @@ int main() {
     description: 'اتخاذ القرارات البرمجية',
     content: `
       <pre>
-#include <iostream>
-using namespace std;
+       #include <iostream>
+       using namespace std;
 
-int main() {
-    int x = 10;
-    // تنفيذ الكود إذا كان الشرط صحيحاً
-    if (x > 5) {
-        cout << "كبير";
-    }
-    return 0;
-}
+       int main() {
+       int x = 10; // متغير X  يخزن قيمة 10
+       // تنفيذ الكود إذا كان الشرط صحيحاً
+        if (x > 5) {
+          cout << "كبير";
+        }
+       return 0;
+      }
       </pre>
     `,
-    challenge: 'إذا كان x يساوي 10 اطبع "Yes"',
+    challenge: 'اذا كان المتغبر يساوي 10 اطبع Yes',
     expectedOutput: 'Yes'
   },
   6: {
@@ -103,16 +107,15 @@ int main() {
     description: 'تكرار الكود باستخدام for',
     content: `
       <pre>
-#include <iostream>
-using namespace std;
-
-int main() {
-    // حلقة for: البداية; الشرط; الزيادة
-    for(int i = 1; i <= 3; i++) {
-        cout << i << " ";
-    }
-    return 0;
-}
+       #include <iostream>
+       using namespace std;
+       int main() {
+       // حلقة for: البداية; الشرط; الزيادة
+       for(int i = 1; i <= 3; i++) {
+         cout << i << " ";
+       }
+          return 0;
+      }
       </pre>
     `,
     challenge: 'اطبع الأرقام من 1 إلى 3 باستخدام for (بينهم مسافة)',
@@ -184,16 +187,16 @@ int main() {
     description: 'أساس البرمجة الكائنية OOP',
     content: `
       <pre>
-#include <iostream>
-using namespace std;
+      #include <iostream>
+      using namespace std;
 
-// تعريف الكلاس
-class MyClass {
-  public:
-    void msg() {
-        cout << "Done";
-    }
-};
+     // تعريف الكلاس
+     class MyClass {
+       public:
+        void msg() {
+         cout << "Done";
+        }
+     };
 
 int main() {
     MyClass obj;

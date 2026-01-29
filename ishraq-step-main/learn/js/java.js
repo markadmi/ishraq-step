@@ -3,13 +3,16 @@ export const java = {
     title: 'الطباعة',
     description: 'تعلم كيفية طباعة النصوص في Java',
     content: `
+     <p>نستخدم // لكتابة تعليق بجانب الكود حتا يتجاهلها الكمبيوتر </p>
+     <p> في حاله عدم كتابه // قبل النص يعتبر الكمبيوتر ان النص كود </p>
+     <p> انظر الي الكود التالي لتعرف كيف تطبع نص</p>
       <pre>
-public class Main {
-    public static void main(String[] args) {
-        // System.out.println تستخدم لطباعة النصوص مع سطر جديد في النهاية
-        System.out.println("مرحبا"); // طباعة كلمة مرحبا
-    }
-}
+        public class Main {
+          public static void main(String[] args) {
+           // System.out.println تستخدم لطباعة النصوص مع سطر جديد في النهاية
+           System.out.println("مرحبا"); // طباعة كلمة مرحبا
+          }
+        }
       </pre>
     `,
     challenge: 'اطبع الرسالة: "أنا أتعلم البرمجة"',
@@ -167,15 +170,15 @@ public class Main {
     description: 'توريث الصفات بين الكلاسات',
     content: `
       <pre>
-class Animal {
-    void eat() {
-        System.out.println("Eating");
+       class Animal {
+         void eat() {
+         System.out.println("Eating");
     }
 }
 
 class Dog extends Animal {
     void bark() {
-        System.out.println("Woof");
+      System.out.println("Woof");
     }
 }
 

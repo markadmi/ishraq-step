@@ -165,19 +165,7 @@
       left: 100%;
       transition: 0.7s;
     }
-    
-    /* حركة اللمعان المستمرة (اختياري - إذا أردته يتحرك تلقائياً) */
-    /*
-    @keyframes shine {
-        0% { left: -100%; }
-        20% { left: 100%; }
-        100% { left: 100%; }
-    }
-    .level-card::before {
-        animation: shine 4s infinite;
-    }
-    */
-
+  
     .level-card:hover:not(.locked) {
       transform: translateY(-10px) scale(1.02);
       background: rgba(255, 255, 255, 0.08); /* تفتيح بسيط عند الهوفر */
@@ -393,8 +381,8 @@
     </div>
 
     <div class="levels-grid" id="levelsContainer">
-      </div>
-  </div>
+     </div>
+ </div>
 
  <script type="module">
     // استيراد الإعدادات والبيانات
@@ -405,8 +393,7 @@
 
     const deviceId = localStorage.getItem('device_id');
     const urlParams = new URLSearchParams(window.location.search);
-    const lang = urlParams.get('lang') || 'python';
-    
+    const lang = urlParams.get('lang') || 'python';   
     // ربط عناصر الواجهة
     const levelsContainer = document.getElementById('levelsContainer');
     const langTitle = document.getElementById('langTitle');
@@ -423,7 +410,7 @@
 
         onValue(userQuery, async (snapshot) => {
             if (snapshot.exists()) {
-                const results = snapshot.val();
+              const results = snapshot.val();
                 const userKey = Object.keys(results)[0];
                 const userData = results[userKey];
 
@@ -483,10 +470,10 @@
 
             card.onclick = () => {
                 if (isLocked) {
-                    showDialog(`عليك إنهاء المستوى السابق أولاً لفتح مسار <b>${level.title}</b>.`);
+                 showDialog(`عليك إنهاء المستوى السابق أولاً لفتح مسار <b>${level.title}</b>.`);
                 } else {
-                    loadingOverlay.classList.remove('hidden');
-                    window.location.href = `lesson.html?lang=${currentLang}&level=${level.id}`;
+                 loadingOverlay.classList.remove('hidden');
+                 window.location.href = `lesson.html?lang=${currentLang}&level=${level.id}`;
                 }
             };
 
@@ -495,7 +482,6 @@
 
         loadingOverlay.classList.add('hidden');
     }
-
     window.onload = initializeLevels;
 </script>
 </body>
