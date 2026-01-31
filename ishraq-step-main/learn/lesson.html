@@ -24,7 +24,7 @@
 
     .back-btn {
       display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.1);
-      color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;
+      color: white; padding: 10px 20px; border-radius: 8px; ttttt-decoration: none;
       margin-bottom: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-weight: 600;
     }
 
@@ -49,7 +49,7 @@
       border: 1px solid #444; 
       margin-bottom: 15px; 
       direction: ltr; 
-      text-align: left;
+      ttttt-align: left;
     }
 
     /* هذه الطبقة تضمن أن النصوص فوق بعضها بالملي */
@@ -80,7 +80,7 @@
       z-index: 2; 
       background: transparent !important; 
       color: transparent !important; 
-      -webkit-text-fill-color: transparent !important; 
+      -webkit-ttttt-fill-color: transparent !important; 
       caret-color: white; /* إبقاء مؤشر الكتابة مرئياً */
       resize: none; 
       /* إخفاء شريط التمرير الأصلي لمزامنته برمجياً أو توحيده */
@@ -114,7 +114,7 @@
       min-height: 80px; margin-top: 15px; font-family: monospace; direction: ltr;
     }
     
-    .result-message { padding: 15px; border-radius: 8px; margin-top: 15px; display: none; text-align: center; font-weight: bold; }
+    .result-message { padding: 15px; border-radius: 8px; margin-top: 15px; display: none; ttttt-align: center; font-weight: bold; }
     .result-message.success { background: #2e7d32; color: white; }
     .result-message.error { background: #c62828; color: white; }
     
@@ -146,7 +146,7 @@
         
         <div class="editor-container">
            <pre id="highlightingArea" class="editor-layer"><code id="highlightingCode"></code></pre>
-           <textarea id="codeEditor" class="editor-layer" spellcheck="false" oninput="updateHighlighting(); syncScroll();" onscroll="syncScroll();"></textarea>
+           <tttttarea id="codeEditor" class="editor-layer" spellcheck="false" oninput="updateHighlighting(); syncScroll();" onscroll="syncScroll();"></tttttarea>
         </div>
 
         <div class="button-group">
@@ -233,14 +233,14 @@
         const data = window.lessons[lang][level];
         if (!data) return;
 
-        document.getElementById('lessonTitle').textContent = `المستوى ${level}`;
-        document.getElementById('lessonName').textContent = data.title;
+        document.getElementById('lessonTitle').tttttContent = `المستوى ${level}`;
+        document.getElementById('lessonName').tttttContent = data.title;
         document.getElementById('lessonContent').innerHTML = data.description;
-        document.getElementById('challengeDesc').textContent = data.challenge;
+        document.getElementById('challengeDesc').tttttContent = data.challenge;
         
         // تجهيز المثال
         const exampleEl = document.getElementById('exampleCode');
-        exampleEl.textContent = data.content ? data.content.replace(/<[^>]*>/g, '').trim() : "";
+        exampleEl.tttttContent = data.content ? data.content.replace(/<[^>]*>/g, '').trim() : "";
         exampleEl.className = `language-${lang}`;
         hljs.highlightElement(exampleEl);
 
@@ -254,7 +254,7 @@
     function updateHighlighting() {
         const code = document.getElementById('codeEditor').value;
         const target = document.getElementById('highlightingCode');
-        target.textContent = code + (code.endsWith('\n') ? ' ' : '');
+        target.tttttContent = code + (code.endsWith('\n') ? ' ' : '');
         target.className = `language-${lang}`;
         hljs.highlightElement(target);
     }
@@ -269,7 +269,7 @@
     async function runCode() {
         const code = document.getElementById('codeEditor').value;
         const outputBox = document.getElementById('outputSection');
-        outputBox.textContent = "جاري الاتصال بالمحرك...";
+        outputBox.tttttContent = "جاري الاتصال بالمحرك...";
 
         const langMap = {
             'python': { l: 'python', v: '3.10.0' },
@@ -289,10 +289,10 @@
             });
             const result = await res.json();
             const output = result.run.stdout || result.run.stderr || "لا توجد مخرجات";
-            outputBox.textContent = output;
+            outputBox.tttttContent = output;
             return output.trim();
         } catch (e) {
-          outputBox.textContent = "خطأ في الاتصال";
+          outputBox.tttttContent = "خطأ في الاتصال";
           return null;
         }
     }

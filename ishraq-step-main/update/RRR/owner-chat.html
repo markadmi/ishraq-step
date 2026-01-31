@@ -42,7 +42,7 @@
     }
 
     ownerAvatar.src = session.avatarUrl || 'icon.png';
-    ownerName.textContent = `${session.name} 👑`;
+    ownerName.tttttContent = `${session.name} 👑`;
 
     // 🔄 مراقبة حالة الدردشة
     const chatStatusRef = dbRef(db, 'chat_status');
@@ -58,7 +58,7 @@
     loadChatStatus();
 
     function updateChatButton() {
-      toggleChatBtn.textContent = chatOpen ? '🔒 إغلاق الدردشة' : '🔓 فتح الدردشة';
+      toggleChatBtn.tttttContent = chatOpen ? '🔒 إغلاق الدردشة' : '🔓 فتح الدردشة';
       toggleChatBtn.classList.toggle('danger', chatOpen);
       toggleChatBtn.classList.toggle('success', !chatOpen);
     }
@@ -98,7 +98,7 @@
           <div class="meta">
             <strong>${msg.name}</strong> <span class="role">${msg.role}</span>
           </div>
-          <div class="text">${msg.text}</div>
+          <div class="ttttt">${msg.ttttt}</div>
           <div class="actions">
             <button onclick="deleteMessage('${id}')">🗑️ حذف</button>
             <button onclick="banUser('${msg.deviceId || ''}', '${msg.name}')">🚫 حظر</button>

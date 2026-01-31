@@ -9,7 +9,7 @@
   body{font-family:Cairo, sans-serif; background: linear-gradient(135deg,#4caf50,#00bcd4); margin:0; padding:20px; color:#333; direction:rtl}
   .card{max-width:980px;margin:20px auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.08)}
   label{display:block;margin-top:10px;font-weight:700}
-  input,textarea,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #e6eef6}
+  input,tttttarea,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #e6eef6}
   .row{display:flex;gap:8px}
   .row > *{flex:1}
   .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -25,7 +25,7 @@
   .progress{height:8px;background:#eee;border-radius:6px;overflow:hidden;margin-top:8px;display:none}
   .progress > span{display:block;height:100%;background:linear-gradient(90deg,#4caf50,#00bcd4);width:0%}
   .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap}
-  .nav-btn{background:#fff; color:#4caf50; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:8px}
   .nav-btn.active{background:#4caf50;color:#fff}
   .questions-list{margin-top:12px;border-top:1px dashed #eee;padding-top:12px}
   .question-item{display:flex;gap:8px;align-items:flex-start;border:1px solid #f1f5f9;padding:8px;border-radius:8px;margin-bottom:8px;background:#fff}
@@ -42,7 +42,6 @@
     <h2>لوحة نشر الاختبارات (أدمن)</h2>
 
     <div class="nav-buttons">
-      <a href="courses.html" class="nav-btn">📹 الكورسات</a>
       <a href="books.html" class="nav-btn">📘 الكتب</a>
       <a href="tests.html" class="nav-btn active">📝 الاختبارات</a>
       <a href="../index.html" class="nav-btn">🏠 الرئيسية</a>
@@ -85,7 +84,7 @@
 
     <h3>إضافة الأسئلة (لن تُنشر حتى تضغط "حفظ / نشر")</h3>
     <label>نص السؤال:</label>
-    <textarea id="qText" rows="3" placeholder="اكتب نص السؤال هنا"></textarea>
+    <tttttarea id="qttttt" rows="3" placeholder="اكتب نص السؤال هنا"></tttttarea>
     <label>صورة السؤال (اختياري):</label>
     <input id="qImage" type="file" accept="image/*">
 
@@ -93,19 +92,19 @@
     <div class="choices" id="choicesContainer">
       <div class="choice-row">
         <input type="radio" name="correctChoice" value="0" id="c0">
-        <input id="c0Text" placeholder="الخيار 1">
+        <input id="c0ttttt" placeholder="الخيار 1">
       </div>
       <div class="choice-row">
         <input type="radio" name="correctChoice" value="1" id="c1">
-        <input id="c1Text" placeholder="الخيار 2">
+        <input id="c1ttttt" placeholder="الخيار 2">
       </div>
       <div class="choice-row">
         <input type="radio" name="correctChoice" value="2" id="c2">
-        <input id="c2Text" placeholder="الخيار 3">
+        <input id="c2ttttt" placeholder="الخيار 3">
       </div>
       <div class="choice-row">
         <input type="radio" name="correctChoice" value="3" id="c3">
-        <input id="c3Text" placeholder="الخيار 4">
+        <input id="c3ttttt" placeholder="الخيار 4">
       </div>
     </div>
 
@@ -172,28 +171,28 @@
     const progressBar = uploadProgress.querySelector('span');
 
     // سؤال UI
-    const qTextEl = document.getElementById('qText');
+    const qtttttEl = document.getElementById('qttttt');
     const qImageEl = document.getElementById('qImage');
     const addQuestionBtn = document.getElementById('addQuestionBtn');
     const clearQuestionBtn = document.getElementById('clearQuestionBtn');
     const questionsListEl = document.getElementById('questionsList');
 
     // خيارات
-    const cTextEls = [
-      document.getElementById('c0Text'),
-      document.getElementById('c1Text'),
-      document.getElementById('c2Text'),
-      document.getElementById('c3Text')
+    const ctttttEls = [
+      document.getElementById('c0ttttt'),
+      document.getElementById('c1ttttt'),
+      document.getElementById('c2ttttt'),
+      document.getElementById('c3ttttt')
     ];
 
-    let questions = []; // مخزن مؤقت قبل النشر. عناصر: { id, text, choices:[{text,isCorrect}], imageFile?, imageUrl? }
+    let questions = []; // مخزن مؤقت قبل النشر. عناصر: { id, ttttt, choices:[{ttttt,isCorrect}], imageFile?, imageUrl? }
 
     function nowIso(){ return new Date().toISOString(); }
     function esc(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
     function showToast(msg, ms=1600){
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      t.tttttContent = msg;
       t.style.display = 'block';
       setTimeout(()=> t.style.display = 'none', ms);
     }
@@ -205,9 +204,9 @@
     });
 
     function clearQuestionFields(){
-      qTextEl.value='';
+      qtttttEl.value='';
       qImageEl.value='';
-      cTextEls.forEach(e=> e.value='');
+      ctttttEls.forEach(e=> e.value='');
       const radios = document.getElementsByName('correctChoice');
       radios.forEach(r=> r.checked = false);
     }
@@ -217,18 +216,18 @@
     });
 
     addQuestionBtn.addEventListener('click', ()=> {
-      const text = qTextEl.value.trim();
-      if(!text){ alert('اكتب نص السؤال أولاً'); return; }
+      const ttttt = qtttttEl.value.trim();
+      if(!ttttt){ alert('اكتب نص السؤال أولاً'); return; }
       // جمع الخيارات
-      const choices = cTextEls.map((el, idx)=> ({ text: el.value.trim(), isCorrect: (document.getElementById('c'+idx).checked) }) );
+      const choices = ctttttEls.map((el, idx)=> ({ ttttt: el.value.trim(), isCorrect: (document.getElementById('c'+idx).checked) }) );
       // التحقق من وجود 4 خيارات غير فارغة
-      const empty = choices.some(c=> !c.text);
+      const empty = choices.some(c=> !c.ttttt);
       if(empty){ alert('املأ جميع الخيارات الأربعة'); return; }
       // التحقق من تحديد إجابة صحيحة
       const correctExists = choices.some(c=> c.isCorrect);
       if(!correctExists){ alert('حدد الإجابة الصحيحة'); return; }
 
-      const q = { id: 'q_' + Date.now(), text, choices };
+      const q = { id: 'q_' + Date.now(), ttttt, choices };
       if(qImageEl.files && qImageEl.files[0]) q.imageFile = qImageEl.files[0];
       questions.push(q);
 
@@ -249,11 +248,11 @@
         const imgHtml = q.imageFile ? `<img src="${URL.createObjectURL(q.imageFile)}" alt="qimg">` :
                         q.imageUrl ? `<img src="${esc(q.imageUrl)}" alt="qimg">` : '';
         // عرض الخيارات مع وسم الصحيح
-        const choicesHtml = (q.choices || []).map((ch, ci) => `<div class="small">${ch.isCorrect?'<span class="correct-badge">صحيح</span>':''}${esc(ch.text)}</div>`).join('');
+        const choicesHtml = (q.choices || []).map((ch, ci) => `<div class="small">${ch.isCorrect?'<span class="correct-badge">صحيح</span>':''}${esc(ch.ttttt)}</div>`).join('');
         div.innerHTML = `
           <div style="flex:1">
             <div><strong>سؤال ${idx+1}</strong></div>
-            <div style="margin-top:6px">${esc(q.text)}</div>
+            <div style="margin-top:6px">${esc(q.ttttt)}</div>
             <div style="margin-top:8px">${choicesHtml}</div>
           </div>
           ${imgHtml}
@@ -266,10 +265,10 @@
         const delBtn = div.querySelector('[data-action="delete"]');
         editBtn.addEventListener('click', ()=> {
           const q0 = questions[idx];
-          qTextEl.value = q0.text || '';
+          qtttttEl.value = q0.ttttt || '';
           // تعبئة الخيارات إلى الحقول
           (q0.choices || []).forEach((ch, i) => {
-            if(cTextEls[i]) cTextEls[i].value = ch.text || '';
+            if(ctttttEls[i]) ctttttEls[i].value = ch.ttttt || '';
             const r = document.getElementById('c'+i);
             if(r) r.checked = !!ch.isCorrect;
           });
@@ -319,7 +318,7 @@
           <div style="display:flex;flex-direction:column;gap:6px">
             <button class="primary" data-id="${esc(id)}" data-action="edit">تعديل</button>
             <button data-id="${esc(id)}" data-action="delete" style="background:#f44336;color:white;border-radius:6px;padding:6px 8px">حذف</button>
-            <a href="../test.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">دخول الاختبار</a>
+            <a href="../test.html?id=${encodeURIComponent(id)}" style="ttttt-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;ttttt-decoration:none">دخول الاختبار</a>
           </div>
         `;
         div.querySelector('[data-action="edit"]').addEventListener('click', ()=> loadTestIntoForm(id));
@@ -340,16 +339,16 @@
         maxScoreEl.value = b.maxScore ?? 100;
         durationEl.value = b.duration || '';
         pvCover.src = b.coverUrl || '';
-        pvTitle.textContent = b.title || '';
-        pvAuthor.textContent = 'معدّ بواسطة: ' + (b.author || '');
-        pvSubject.textContent = 'المادة: ' + (b.subject || '');
-        pvScore.textContent = 'الدرجة الكلية: ' + (b.maxScore ?? '');
+        pvTitle.tttttContent = b.title || '';
+        pvAuthor.tttttContent = 'معدّ بواسطة: ' + (b.author || '');
+        pvSubject.tttttContent = 'المادة: ' + (b.subject || '');
+        pvScore.tttttContent = 'الدرجة الكلية: ' + (b.maxScore ?? '');
         const qs = Array.isArray(b.questions) ? b.questions : [];
         // ملء المصفوفة المحلية بالأسئلة المحفوظة (نحافظ على imageUrl و choices)
-        questions = qs.map((x,i)=> ({ id: x.id || ('q_saved_'+i), text: x.text || '', imageUrl: x.imageUrl || '', choices: x.choices || [] }) );
+        questions = qs.map((x,i)=> ({ id: x.id || ('q_saved_'+i), ttttt: x.ttttt || '', imageUrl: x.imageUrl || '', choices: x.choices || [] }) );
         renderQuestionsList();
-        pvQuestionsCount.textContent = 'عدد الأسئلة: ' + questions.length;
-        pvDetails.innerHTML = questions.map((q,i)=> `<div><strong>س${i+1}:</strong> ${esc(q.text)} ${(q.choices||[]).length?'<div class="small">خيارات: '+ (q.choices.map(ch=> esc(ch.text) + (ch.isCorrect?' (✓)':'')).join(' | ')) +'</div>':''}</div>`).join('');
+        pvQuestionsCount.tttttContent = 'عدد الأسئلة: ' + questions.length;
+        pvDetails.innerHTML = questions.map((q,i)=> `<div><strong>س${i+1}:</strong> ${esc(q.ttttt)} ${(q.choices||[]).length?'<div class="small">خيارات: '+ (q.choices.map(ch=> esc(ch.ttttt) + (ch.isCorrect?' (✓)':'')).join(' | ')) +'</div>':''}</div>`).join('');
         previewArea.hidden = false;
         window.scrollTo({top:0,behavior:'smooth'});
       }catch(err){ alert('خطأ في التحميل: ' + err.message); }
@@ -404,12 +403,12 @@
       uploadProgress.style.display = 'none';
       progressBar.style.width = '0%';
 
-      // تجهيز المصفوفة للحفظ (الأسئلة يجب أن تحتوي على text و imageUrl و id و choices)
+      // تجهيز المصفوفة للحفظ (الأسئلة يجب أن تحتوي على ttttt و imageUrl و id و choices)
       const questionsToSave = questions.map((q,i)=>({
         id: q.id || ('q_' + i + '_' + Date.now()),
-        text: q.text || '',
+        ttttt: q.ttttt || '',
         imageUrl: q.imageUrl || '',
-        choices: (q.choices || []).map(ch => ({ text: ch.text || '', isCorrect: !!ch.isCorrect }))
+        choices: (q.choices || []).map(ch => ({ ttttt: ch.ttttt || '', isCorrect: !!ch.isCorrect }))
       }));
 
       const payload = {
@@ -430,12 +429,12 @@
         alert('✅ تم الحفظ. id = ' + id);
         testIdEl.value = id;
         // تحديث المعاينة
-        pvTitle.textContent = payload.title || '';
-        pvAuthor.textContent = 'معدّ بواسطة: ' + (payload.author || '');
-        pvSubject.textContent = 'المادة: ' + (payload.subject || '');
-        pvScore.textContent = 'الدرجة الكلية: ' + (payload.maxScore ?? '');
-        pvQuestionsCount.textContent = 'عدد الأسئلة: ' + (payload.questions ? payload.questions.length : 0);
-        pvDetails.innerHTML = (payload.questions || []).map((q,i)=> `<div><strong>س${i+1}:</strong> ${esc(q.text)} ${(q.choices||[]).length?'<div class="small">خيارات: '+ (q.choices.map(ch=> esc(ch.text) + (ch.isCorrect?' (✓)':'')).join(' | ')) +'</div>':''}</div>`).join('');
+        pvTitle.tttttContent = payload.title || '';
+        pvAuthor.tttttContent = 'معدّ بواسطة: ' + (payload.author || '');
+        pvSubject.tttttContent = 'المادة: ' + (payload.subject || '');
+        pvScore.tttttContent = 'الدرجة الكلية: ' + (payload.maxScore ?? '');
+        pvQuestionsCount.tttttContent = 'عدد الأسئلة: ' + (payload.questions ? payload.questions.length : 0);
+        pvDetails.innerHTML = (payload.questions || []).map((q,i)=> `<div><strong>س${i+1}:</strong> ${esc(q.ttttt)} ${(q.choices||[]).length?'<div class="small">خيارات: '+ (q.choices.map(ch=> esc(ch.ttttt) + (ch.isCorrect?' (✓)':'')).join(' | ')) +'</div>':''}</div>`).join('');
         if (payload.coverUrl) pvCover.src = payload.coverUrl;
         previewArea.hidden = false;
       }catch(err){ alert('خطأ في الحفظ: ' + err.message); }

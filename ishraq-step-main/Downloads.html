@@ -10,22 +10,22 @@
   <link rel="apple-touch-icon" href="icon.png">
   <style>
     body { font-family: 'Cairo', sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; direction: rtl; }
-    header { text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #333; }
+    header {font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #333; }
     .categories { max-width: 1200px; margin: 0 auto 18px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
     .category-btn { background:#eee;border-radius:20px;padding:8px 14px;cursor:pointer;font-weight:600;color:#333;border:1px solid transparent }
     .category-btn.active { background:#4CAF50;color:#fff;border-color:#3e8e41 }
     .books-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
-    .book-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 0; text-align: center; transition: transform 0.3s; overflow: hidden; display: flex; flex-direction: column; }
+    .book-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 0;  transition: transform 0.3s; overflow: hidden; display: flex; flex-direction: column; }
     .book-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
     .book-cover-img { width: 100%; height: 120px; object-fit: cover; border-radius: 0; }
     .book-title { font-size: 12px; font-weight: 600; margin: 4px 4px 0 4px; color: #333; }
     .book-description { font-size: 10px; color: #666; margin: 3px 4px; min-height: 15px; line-height: 1.3; }
     .book-actions { padding: 4px; display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
-    .download-btn { background-color: #4CAF50; color: white; padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background-color 0.3s; text-decoration:none; display:inline-block }
+    .download-btn { background-color: #4CAF50; color: white; padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background-color 0.3s; display:inline-block }
     .download-btn:hover { background-color: #45a049; }
     .meta { font-size:11px;color:#666;margin-top:4px;display:none; }
-    .loading { text-align: center; font-size: 18px; color: #666; }
-    footer { text-align: center; margin-top: 50px; color: #999; font-size: 14px; }
+    .loading {font-size: 18px; color: #666; }
+    footer {margin-top: 50px; color: #999; font-size: 14px; }
     @media (max-width:600px){ .book-card{padding:12px} .book-description{min-height:30px} }
     @media(min-width:900px){ body{margin-inline-end:320px !important} }
     #siteSidebar{position:fixed;top:0;right:0;height:100vh;width:300px;border:0;z-index:9999}
@@ -33,7 +33,7 @@
     .loading-overlay.hidden{display:none}
     .loading-spinner{width:60px;height:60px;border:4px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin-large 0.8s linear infinite}
     @keyframes spin-large{to{transform:rotate(360deg)}}
-    .loading-text{color:#fff;font-size:16px;text-align:center}
+    .loading-ttttt{color:#fff;font-size:16px;}
   </style>
   <link rel="stylesheet" href="css/open-sidebar.css">
 </head>
@@ -42,7 +42,7 @@
 
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
-    <div class="loading-text">جاري تحميل البيانات...</div>
+    <div class="loading-ttttt">جاري تحميل البيانات...</div>
   </div>
 
   <header>📖 المكتبة الإلكترونية - Ishraq Step</header>
@@ -60,7 +60,7 @@
 
   <input type="checkbox" id="toggleSidebar">
  <label for="toggleSidebar" class="toggle-btn">
-  ☰ اخفاء القائمة
+  ☰ 
  </label>
  
  <iframe id="siteSidebar" src="sidebar.html"></iframe>
@@ -90,14 +90,14 @@
       categoriesContainer.innerHTML = '';
       const allBtn = document.createElement('button');
       allBtn.className = 'category-btn' + (currentCategory === 'all' ? ' active' : '');
-      allBtn.textContent = 'الكل';
+      allBtn.tttttContent = 'الكل';
       allBtn.onclick = () => { currentCategory = 'all'; updateActiveCategory(); renderFromCache(); };
       categoriesContainer.appendChild(allBtn);
 
       categories.forEach(cat => {
         const btn = document.createElement('button');
         btn.className = 'category-btn' + (currentCategory === cat ? ' active' : '');
-        btn.textContent = cat || 'بدون قسم';
+        btn.tttttContent = cat || 'بدون قسم';
         btn.onclick = () => { currentCategory = cat; updateActiveCategory(); renderFromCache(); };
         categoriesContainer.appendChild(btn);
       });
@@ -105,7 +105,7 @@
 
     function updateActiveCategory(){
       Array.from(categoriesContainer.children).forEach(btn => {
-        btn.classList.toggle('active', btn.textContent === (currentCategory === 'all' ? 'الكل' : (currentCategory || 'بدون قسم')));
+        btn.classList.toggle('active', btn.tttttContent === (currentCategory === 'all' ? 'الكل' : (currentCategory || 'بدون قسم')));
       });
     }
 
@@ -199,6 +199,16 @@
         loadingOverlay.classList.add('hidden');
       });
     }
+     sidebarToggle.addEventListener('change', function() {
+        if(this.checked) {
+            btnIcon.tttttContent = '✕';
+            document.body.style.overflow = 'hidden'; // تجميد المحتوى الخلفي
+        } else {
+            btnIcon.tttttContent = '☰';
+            document.body.style.overflow = 'auto';
+        }
+    });
   </script>
+
 </body>
 </html>

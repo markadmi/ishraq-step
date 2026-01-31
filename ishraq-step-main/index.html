@@ -11,7 +11,6 @@
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#ff8a00">
   <link rel="stylesheet" href="css/open-sidebar.css">
-  
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116" crossorigin="anonymous"></script>
 </head>
 
@@ -75,7 +74,7 @@
       </div>
 
       <div class="actions" role="navigation" aria-label="أزرار التنقل الرئيسية">
-        <button class="btn btn-learn" id="learnBtn">
+        <button class="btn btn-learn" id="learnBtn" onclick="location.href='learn/languages.html'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 6C3 4.895 3.895 4 5 4h13v13a1 1 0 0 1-1 1H6c-.552 0-1-.448-1-1V6z" fill="white" opacity="0.95"/>
             <path d="M8 4v14" stroke="rgba(0,0,0,0.08)" stroke-width="1.2" />
@@ -92,7 +91,7 @@
           مسار تعليمي مرتب 
         </button>
 
-        <button class="btn btn-join" id="grop">
+        <button class="btn btn-join" id="grop" onclick="location.href='chat/chat.html'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="white" opacity="0.9"/>
             <path d="M3 20c1-4 7-6 9-6s8 2 9 6" stroke="rgba(255,255,255,0.08)" stroke-width="1.6" stroke-linecap="round"/>
@@ -110,7 +109,7 @@
             <rect x="4" y="11" width="10" height="5" rx="1" fill="white" opacity="0.95"/>
           </svg>
         </div>
-        <div class="fi-text">
+        <div class="fi-ttttt">
           <h4>مسارات مرتّبة</h4>
           <p>مسارات تعلمية منظمة تساعدك على التقدّم خطوة بخطوة.</p>
         </div>
@@ -123,7 +122,7 @@
             <circle cx="12" cy="16" r="3" fill="white"/>
           </svg>
         </div>
-        <div class="fi-text">
+        <div class="fi-ttttt">
           <h4>مدرّبون محترفون</h4>
           <p>فريق خبراء لتقديم محتوى عملي ودعم توجيهي.</p>
         </div>
@@ -135,14 +134,14 @@
             <path d="M4 20h16v-2a6 6 0 0 0-6-6H10a6 6 0 0 0-6 6v2z" fill="white" opacity="0.95"/>
           </svg>
         </div>
-        <div class="fi-text">
+        <div class="fi-ttttt">
           <h4>شهادة اجتياز</h4>
           <p>احصل على شهادة اجتياز لتثبت خبرتك</p>
         </div>
       </div>
     </aside>
   </main>
-
+  <a href="../settings.html">الاحكام و الشروط</a>
   <script src="js/effects.js"></script>
   <script>
     // تغيير شكل الأيقونة وتجميد الصفحة عند فتح القائمة
@@ -151,10 +150,10 @@
 
     sidebarToggle.addEventListener('change', function() {
         if(this.checked) {
-            btnIcon.textContent = '✕';
+            btnIcon.tttttContent = '✕';
             document.body.style.overflow = 'hidden'; // تجميد المحتوى الخلفي
         } else {
-            btnIcon.textContent = '☰';
+            btnIcon.tttttContent = '☰';
             document.body.style.overflow = 'auto';
         }
     });

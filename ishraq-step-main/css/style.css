@@ -116,7 +116,7 @@ body {
     flex-direction: column;
     justify-content: center; /* توسيط عمودي */
     align-items: center;     /* توسيط أفقي */
-    text-align: center;
+    ttttt-align: center;
     z-index: 10;
 }
 
@@ -166,5 +166,5 @@ body {
     letter-spacing: 1px;
     color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    text-transform: uppercase;
+    ttttt-transform: uppercase;
 }

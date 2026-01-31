@@ -9,7 +9,7 @@
   body{font-family:Cairo, sans-serif; background: linear-gradient(135deg,#4caf50,#00bcd4); margin:0; padding:20px; color:#333; direction:rtl}
   .card{max-width:980px;margin:20px auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.08)}
   label{display:block;margin-top:10px;font-weight:700}
-  input,textarea,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #e6eef6}
+  input,tttttarea,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #e6eef6}
   .row{display:flex;gap:8px}
   .row > *{flex:1}
   .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -27,7 +27,7 @@
 
   /* navigation buttons */
   .nav-buttons{display:flex; gap:10px; justify-content:center; margin-bottom:16px; flex-wrap:wrap}
-  .nav-btn{background:#fff; color:#4caf50; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:8px}
+  .nav-btn{background:#fff; color:#4caf50; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:8px}
   .nav-btn.active{background:#4caf50;color:#fff}
 </style>
 </head>
@@ -36,7 +36,6 @@
     <h2>لوحة نشر الكتب (أدمن)</h2>
 
     <div class="nav-buttons">
-      <a href="courses.html" class="nav-btn">📹 الكورسات</a>
       <a href="books.html" class="nav-btn active">📘 الكتب</a>
       <a href="tests.html" class="nav-btn">الاختبارات</a>
       <a href="../index.html" class="nav-btn">🏠 الرئيسية</a>
@@ -55,7 +54,7 @@
     <input id="description">
 
     <label>تفاصيل (فهرس، محتوى):</label>
-    <textarea id="details" rows="4"></textarea>
+    <tttttarea id="details" rows="4"></tttttarea>
 
     <div class="row">
       <div>
@@ -154,7 +153,7 @@
         if(!pvPages) return;
         const p = window.computedPages ?? null;
         const s = window.computedSize || '';
-        pvPages.textContent = 'الصفحات: ' + (p ? p : '—') + (s ? ' • الحجم: ' + s : '');
+        pvPages.tttttContent = 'الصفحات: ' + (p ? p : '—') + (s ? ' • الحجم: ' + s : '');
       }
     })();
   </script>
@@ -227,7 +226,7 @@
         <div style="display:flex;flex-direction:column;gap:6px">
           <button class="primary" data-id="${esc(id)}" data-action="edit">تعديل</button>
           <button data-id="${esc(id)}" data-action="delete" style="background:#f44336;color:white;border-radius:6px;padding:6px 8px">حذف</button>
-          <a href="../book.html?id=${encodeURIComponent(id)}" style="text-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;text-decoration:none">معاينة</a>
+          <a href="../book.html?id=${encodeURIComponent(id)}" style="ttttt-align:center;padding:6px;border-radius:6px;background:#eee;color:#111;ttttt-decoration:none">معاينة</a>
         </div>
       `;
       const editBtn = div.querySelector('[data-action="edit"]');
@@ -253,12 +252,12 @@
       window.computedSize = b.size || '';
       ratingEl.value = b.rating ?? 0;
       pvCover.src = b.coverUrl || '';
-      pvTitle.textContent = b.title || '';
-      pvAuthor.textContent = 'المؤلف: ' + (b.author || '');
-      pvCategory.textContent = 'القسم: ' + (b.category || '');
-      pvPages.textContent = 'الصفحات: ' + (window.computedPages ?? '—') + (window.computedSize ? ' • الحجم: ' + window.computedSize : '');
-      pvRating.textContent = 'التقييم: ' + (b.rating ?? 0);
-      pvDescription.textContent = b.description || '';
+      pvTitle.tttttContent = b.title || '';
+      pvAuthor.tttttContent = 'المؤلف: ' + (b.author || '');
+      pvCategory.tttttContent = 'القسم: ' + (b.category || '');
+      pvPages.tttttContent = 'الصفحات: ' + (window.computedPages ?? '—') + (window.computedSize ? ' • الحجم: ' + window.computedSize : '');
+      pvRating.tttttContent = 'التقييم: ' + (b.rating ?? 0);
+      pvDescription.tttttContent = b.description || '';
       pvDetails.innerHTML = b.details || '';
       pvFileLink.href = b.fileUrl || '#';
       previewArea.hidden = false;

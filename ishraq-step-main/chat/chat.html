@@ -80,8 +80,8 @@
       font-size: 18px;
       font-weight: 700;
       background: linear-gradient(to right, #fff, #ccc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: ttttt;
+      -webkit-ttttt-fill-color: transparent;
     }
     .chat-info span {
       font-size: 12px; color: #aaa;
@@ -231,7 +231,7 @@
       padding: 30px;
       border-radius: 20px;
       width: 300px;
-      text-align: center;
+      ttttt-align: center;
       animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -268,7 +268,7 @@
 
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner"></div>
-    <div class="loading-text" style="color:#888;">جاري الاتصال...</div>
+    <div class="loading-ttttt" style="color:#888;">جاري الاتصال...</div>
   </div>
 
   <div class="wrap">
@@ -276,7 +276,7 @@
       <div class="chat-header">
         <div class="chat-info">
           <h2>🔥 جروب مهندسين جامعة سوهاج</h2>
-          <div id="statusText">متصل الآن</div>
+          <div id="statusttttt">متصل الآن</div>
         </div>
         
         <div class="header-tools" id="adminTools">
@@ -288,7 +288,7 @@
       <div id="messages" class="messages"></div>
 
       <div class="composer">
-        <input id="msgText" type="text" placeholder="اكتب رسالتك هنا...">
+        <input id="msgttttt" type="ttttt" placeholder="اكتب رسالتك هنا...">
         <button id="sendBtn" class="btn btn-primary">إرسال 🚀</button>
       </div>
     </div>
@@ -336,14 +336,14 @@
     // تعريف العناصر
     const loadingOverlay = document.getElementById('loadingOverlay');
     const messagesDiv = document.getElementById('messages');
-    const msgText = document.getElementById('msgText');
+    const msgttttt = document.getElementById('msgttttt');
     const sendBtn = document.getElementById('sendBtn');
     
     // أدوات المسؤول (في الهيدر)
     const adminTools = document.getElementById('adminTools');
     const clearAllBtn = document.getElementById('clearAllBtn');
     const toggleChatBtn = document.getElementById('toggleChatBtn');
-    const statusText = document.getElementById('statusText');
+    const statusttttt = document.getElementById('statusttttt');
 
     // المودال
     const userModal = document.getElementById('userModal');
@@ -374,14 +374,14 @@
       chatOpen = val ? val.open : true;
       
       if(chatOpen) {
-          statusText.innerText = "🟢 متصل الآن";
-          statusText.style.color = "#00ff88";
-          toggleChatBtn.innerText = '⏸️ إيقاف';
+          statusttttt.innerttttt = "🟢 متصل الآن";
+          statusttttt.style.color = "#00ff88";
+          toggleChatBtn.innerttttt = '⏸️ إيقاف';
           toggleChatBtn.className = "tool-btn warning";
       } else {
-          statusText.innerText = "🔴 الدردشة مغلقة";
-          statusText.style.color = "#ff4b4b";
-          toggleChatBtn.innerText = '▶️ فتح';
+          statusttttt.innerttttt = "🔴 الدردشة مغلقة";
+          statusttttt.style.color = "#ff4b4b";
+          toggleChatBtn.innerttttt = '▶️ فتح';
           toggleChatBtn.className = "tool-btn success";
           toggleChatBtn.style.borderColor = "#00b09b";
           toggleChatBtn.style.color = "#00b09b";
@@ -395,14 +395,14 @@
 
     // === إرسال الرسالة ===
     sendBtn.addEventListener('click', sendMessage);
-    msgText.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+    msgttttt.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
 
     async function sendMessage() {
       if (!chatOpen) return alert('⛔ الدردشة مغلقة مؤقتاً');
       if (bans[currentUser.deviceId]) return alert('🚫 حسابك محظور');
 
-      const text = (msgText.value || '').trim();
-      if (!text) return;
+      const ttttt = (msgttttt.value || '').trim();
+      if (!ttttt) return;
 
       try {
         const mRef = push(dbRef(db, 'messages'));
@@ -412,11 +412,11 @@
           avatar: currentUser.avatarUrl || '',
           role: currentUser.role || 'طالب',
           deviceId: currentUser.deviceId,
-          text,
+          ttttt,
           timestamp: Date.now()
         });
-        msgText.value = '';
-        msgText.focus();
+        msgttttt.value = '';
+        msgttttt.focus();
         await trimMessagesIfNeeded();
       } catch (err) { console.error(err); }
     }
@@ -456,20 +456,20 @@
       const body = document.createElement('div');
       body.className = 'msg-body';
       
-      const roleText = m.role ? `<span class="role-badge">${m.role}</span>` : '';
+      const rolettttt = m.role ? `<span class="role-badge">${m.role}</span>` : '';
       
       let headerHtml = '';
       if(!isMe) {
           headerHtml = `
             <div class="msg-head">
-               ${roleText} <strong>${escapeHtml(m.name)}</strong>
+               ${rolettttt} <strong>${escapeHtml(m.name)}</strong>
             </div>
           `;
       }
 
       body.innerHTML = `
         ${headerHtml}
-        <div class="msg-text">${escapeHtml(m.text)}</div>
+        <div class="msg-ttttt">${escapeHtml(m.ttttt)}</div>
       `;
 
       wrap.appendChild(avatar);
@@ -481,16 +481,16 @@
     // === إدارة الحظر (Modal) ===
     function openUserModal(user) {
       modalAvatar.src = user.avatar || '';
-      modalName.innerText = user.name || 'مستخدم';
-      modalRole.innerText = user.role || 'عضو';
+      modalName.innerttttt = user.name || 'مستخدم';
+      modalRole.innerttttt = user.role || 'عضو';
       
       const isBanned = !!bans[user.deviceId];
 
       if (isBanned) {
-        banToggleBtn.innerText = '✅ فك الحظر';
+        banToggleBtn.innerttttt = '✅ فك الحظر';
         banToggleBtn.className = 'btn btn-primary';
       } else {
-        banToggleBtn.innerText = '🚫 حظر المستخدم';
+        banToggleBtn.innerttttt = '🚫 حظر المستخدم';
         banToggleBtn.className = 'btn btn-danger';
         banToggleBtn.style.background = '#ff4b4b';
         banToggleBtn.style.color = '#fff';
@@ -525,9 +525,9 @@
       } catch (err) { console.error(err); }
     });
 
-    function escapeHtml(text){
-      if(!text) return '';
-      return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    function escapeHtml(ttttt){
+      if(!ttttt) return '';
+      return ttttt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     // تنظيف الرسائل القديمة

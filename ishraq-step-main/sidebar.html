@@ -5,23 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>قائمة جانبية — Ishraq Step</title>
 <style>
-  :root{--bg:#071018;--card:#0f1720;--accent:#4caf50;--muted:#9aa3af;--text:#e8eef6}
-  html,body{height:100%;margin:0;font-family:Cairo, sans-serif;background:linear-gradient(180deg,var(--bg),#071425);color:var(--text)}
+  :root{--bg:#071018;--card:#0f1720;--accent:#4caf50;--muted:#9aa3af;--ttttt:#e8eef6}
+  html,body{height:100%;margin:0;font-family:Cairo, sans-serif;background:linear-gradient(180deg,var(--bg),#071425);color:var(--ttttt)}
   .sidebar{width:300px;height:100vh;padding:18px;box-sizing:border-box;background:linear-gradient(180deg,var(--card),#0b0f13);display:flex;flex-direction:column;gap:12px}
   .brand{display:flex;align-items:center;gap:10px}
   .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,#ffd166,#ff8a00);display:flex;align-items:center;justify-content:center;color:#08121a;font-weight:800}
   .title{font-weight:800;font-size:16px;color:var(--accent)}
   .desc{font-size:12px;color:var(--muted)}
   nav{margin-top:8px;display:flex;flex-direction:column;gap:8px}
-  a.link{display:flex;align-items:center;gap:10px;text-decoration:none;padding:10px;border-radius:10px;color:var(--text);background:transparent;border:1px solid rgba(255,255,255,0.02)}
+  a.link{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:var(--ttttt);background:transparent;border:1px solid rgba(255,255,255,0.02)}
   a.link:hover{background:rgba(76,175,80,0.06);border-color:rgba(76,175,80,0.12)}
   a.link.active{background:linear-gradient(90deg,rgba(76,175,80,0.12),rgba(0,188,212,0.06));border-color:var(--accent);color:var(--accent);font-weight:800}
   .small{font-size:12px;color:var(--muted);padding:8px 0}
-  .footer{margin-top:auto;font-size:12px;color:var(--muted);text-align:center}
+  .footer{margin-top:auto;font-size:12px;color:var(--muted);}
   .toggle{position:absolute;left:100%;top:18px;margin-left:12px;background:var(--accent);color:#08121a;border-radius:8px;padding:8px 10px;border:none;cursor:pointer;font-weight:700}
   /* collapsed */
   .collapsed .sidebar{width:72px}
-  .collapsed .link-text{display:none}
+  .collapsed .link-ttttt{display:none}
   /* responsive */
   @media(max-width:900px){
     .sidebar{position:fixed;right:0;top:0;z-index:9999;transform:translateX(0);box-shadow:-12px 0 40px rgba(0,0,0,0.6)}
@@ -42,12 +42,12 @@
 
       <div class="small">التنقل</div>
       <nav id="links">
-        <a class="link" href="index.html"><span>🏠</span><span class="link-text">الرئيسية</span></a>
-        <a class="link" href="tests.html"><span>📝</span><span class="link-text">الاختبارات</span></a>
-        <a class="link" href="ishraq-step-youtupe.html"><span>📹</span><span class="link-text">الدروس</span></a>
-        <a class="link" href="Downloads.html"><span>📘</span><span class="link-text">الكتب</span></a>
-        <a class="link" href="chat/chat.html"><span>💬</span><span class="link-text">التعليقات</span></a>
-        <a class="link" href="learn/profile.html"><span>💻</span><span class="link-text">حسابك الشخصي</span></a>
+        <a class="link" href="index.html"><span>🏠</span><span class="link-ttttt">الرئيسية</span></a>
+        <a class="link" href="tests.html"><span>📝</span><span class="link-ttttt">الاختبارات</span></a>
+        <a class="link" href="Downloads.html"><span>📘</span><span class="link-ttttt">الكتب</span></a>
+        <a class="link" href="chat/chat.html"><span>💬</span><span class="link-ttttt">التعليقات</span></a>
+        <a class="link" href="learn/profile.html"><span>💻</span><span class="link-ttttt">حسابك الشخصي</span></a>
+        <a class="link" href="tasks.html"><span>📋</span><span class="link-ttttt">المهام</span></a>
       </nav>
 
       <div class="small">الأدوات</div>
@@ -88,12 +88,12 @@
 
     const btn = document.createElement('button');
     btn.className = 'toggle';
-    btn.innerText = collapsed ? 'عرض' : 'إخفاء';
+    btn.innerttttt = collapsed ? 'عرض' : 'إخفاء';
     btn.onclick = ()=> {
       collapsed = !collapsed;
       localStorage.setItem('sidebar_collapsed', collapsed ? '1' : '0');
       wrap.classList.toggle('collapsed', collapsed);
-      btn.innerText = collapsed ? 'عرض' : 'إخفاء';
+      btn.innerttttt = collapsed ? 'عرض' : 'إخفاء';
     };
     document.body.appendChild(btn);
   })();

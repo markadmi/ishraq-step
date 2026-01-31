@@ -283,16 +283,15 @@
 
   <div class="card">
     <h2>تسجيل الدخول</h2>
-    <span class="muted">أدخل بياناتك للانضمام إلى الدردشة</span>
-
     <label>الاسم المستعار</label>
-    <input id="name" type="text" placeholder="اكتب اسمك هنا...">
 
+    <input id="name" type="text" placeholder="اكتب اسمك هنا...">
     <label>الصورة الشخصية (Avatar)</label>
     <input id="avatarFile" type="file" accept="image/*">
 
     <label>كود الدخول (اختياري)</label>
     <input id="location" type="text" placeholder="اتركه فارغاً">
+      <a href="../../settings.html">الاحكام و الشروط</a>
 
     <div class="btn-group">
       <button id="enterBtn" class="btn btn-primary">تسجيل الدخول</button>
@@ -305,7 +304,6 @@
     <div class="progress-text" id="progressText">جارٍ الرفع...</div>
   </div>
 
-  <script type="module" src="js/fb.js"></script>
   <script type="module">
     import { db, storage } from './js/fb.js';
     import { ref as dbRef, push, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';

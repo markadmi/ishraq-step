@@ -24,10 +24,10 @@
   
   .question-container{margin-bottom:32px;padding:20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px}
   .question-number{color:var(--accent);font-weight:700;font-size:14px;margin-bottom:8px}
-  .question-text{font-size:18px;font-weight:600;margin:12px 0;color:#e8eef6}
+  .question-ttttt{font-size:18px;font-weight:600;margin:12px 0;color:#e8eef6}
   
   .choices{display:flex;flex-direction:column;gap:12px;margin-top:16px}
-  .choice-btn{background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.1);color:#e8eef6;padding:12px 16px;border-radius:10px;cursor:pointer;text-align:right;font-weight:500;transition:all .3s}
+  .choice-btn{background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.1);color:#e8eef6;padding:12px 16px;border-radius:10px;cursor:pointer;font-weight:500;transition:all .3s}
   .choice-btn:hover{background:rgba(76,175,80,0.1);border-color:var(--accent)}
   .choice-btn.selected{background:var(--accent);color:#08121a;border-color:var(--accent)}
   .choice-btn.correct{background:rgba(76,175,80,0.2);border-color:var(--accent)}
@@ -43,7 +43,7 @@
   .btn:disabled{opacity:.5;cursor:not-allowed}
   
   .sidebar-section{margin-bottom:16px}
-  .sidebar-label{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;text-transform:uppercase}
+  .sidebar-label{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;}
   .questions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:300px;overflow-y:auto}
   .q-indicator{width:100%;aspect-ratio:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s}
   .q-indicator:hover{background:rgba(76,175,80,0.2)}
@@ -51,13 +51,13 @@
   .q-indicator.answered{background:rgba(76,175,80,0.3);border-color:var(--accent)}
   
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;font-size:12px}
-  .stat-item{background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;text-align:center}
+  .stat-item{background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;}
   .stat-label{color:#9aa3af;font-size:11px}
   .stat-value{color:var(--accent);font-weight:700;font-size:14px}
   
   /* Result Screen */
   #resultScreen{display:none;width:100%}
-  .result-container{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px;text-align:center;margin:20px}
+  .result-container{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px;margin:20px}
   .result-score{font-size:48px;font-weight:800;color:var(--accent);margin:20px 0}
   .result-message{font-size:20px;margin:20px 0;color:#e8eef6}
   .result-details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0}
@@ -226,7 +226,7 @@ if (!testId) {
   examContainer.innerHTML = '<div style="color:var(--danger);padding:20px">خطأ: لم يتم تحديد الاختبار</div>';
 } else {
   if(loadSessionData()){
-    examTitle.textContent = testData.title || 'اختبار';
+    examTitle.tttttContent = testData.title || 'اختبار';
     startTimer();
     renderQuestion();
     renderQuestionsGrid();
@@ -244,7 +244,7 @@ async function loadTest(){
       return;
     }
     testData = snap.val();
-    examTitle.textContent = testData.title || 'اختبار';
+    examTitle.tttttContent = testData.title || 'اختبار';
     
     // تحويل الأسئلة إلى مصفوفة (قد تكون array أو object)
     let questionsData = testData.questions || [];
@@ -254,9 +254,9 @@ async function loadTest(){
     
     questions = questionsData.map(q => ({
       id: q.id,
-      text: q.text || '',
+      ttttt: q.ttttt || '',
       imageUrl: q.imageUrl || '',
-      choices: (q.choices || []).map(c => ({ text: c.text || '', correct: !!c.isCorrect }))
+      choices: (q.choices || []).map(c => ({ ttttt: c.ttttt || '', correct: !!c.isCorrect }))
     }));
     
     if(questions.length === 0){
@@ -277,10 +277,10 @@ async function loadTest(){
 }
 
 function startTimer(){
-  timer.textContent = formatTime(timeLeft);
+  timer.tttttContent = formatTime(timeLeft);
   timerInterval = setInterval(()=>{
     timeLeft--;
-    timer.textContent = formatTime(timeLeft);
+    timer.tttttContent = formatTime(timeLeft);
     saveSessionData();
     if(timeLeft <= 300) timer.classList.add('warning');
     if(timeLeft <= 0){
@@ -303,7 +303,7 @@ function renderQuestion(){
   questionArea.innerHTML = `
     <div class="question-container">
       <div class="question-number">السؤال ${currentQuestionIndex+1} من ${questions.length}</div>
-      <div class="question-text">${escapeHtml(q.text)}</div>
+      <div class="question-ttttt">${escapeHtml(q.ttttt)}</div>
       ${q.imageUrl ? `<img src="${escapeAttr(q.imageUrl)}" style="max-width:100%;border-radius:8px;margin:12px 0">` : ''}
       <div class="choices">
         ${q.choices.map((c, i)=>{
@@ -314,7 +314,7 @@ function renderQuestion(){
             else if(saved === i) classes = 'choice-btn incorrect';
           }
           return `<button class="${classes}" onclick="selectAnswer(${i})" ${isSubmitted?'disabled':''}>
-             ${escapeHtml(c.text)}
+             ${escapeHtml(c.ttttt)}
           </button>`;
         }).join('')}
       </div>
@@ -398,10 +398,10 @@ function submitTest(){
   const score = correct;
   const maxScore = questions.length;
 
-  document.getElementById('scoreDisplay').textContent = `${score}/${maxScore}`;
-  document.getElementById('correctCount').textContent = correct;
-  document.getElementById('wrongCount').textContent = wrong;
-  document.getElementById('percentage').textContent = `${percentage}%`;
+  document.getElementById('scoreDisplay').tttttContent = `${score}/${maxScore}`;
+  document.getElementById('correctCount').tttttContent = correct;
+  document.getElementById('wrongCount').tttttContent = wrong;
+  document.getElementById('percentage').tttttContent = `${percentage}%`;
 
   let message = '';
   if(percentage >= 90) message = '🎉🎉 ممتاز جداً! أداء استثنائي';
@@ -412,7 +412,7 @@ function submitTest(){
   else if(percentage >= 40) message = '📚 ضعيف، يحتاج تحسين كبير';
   else message = '❌ يجب إعادة المحاولة';
   
-  document.getElementById('resultMessage').textContent = message;
+  document.getElementById('resultMessage').tttttContent = message;
 
   document.getElementById('reviewBtn').onclick = ()=>{ showReview(wrongAnswers); };
 
@@ -431,23 +431,23 @@ function submitTest(){
 function showReview(wrongAnswers){
   reviewList.innerHTML = wrongAnswers.map(item=>`
     <div class="review-item wrong">
-      <div class="review-q">${escapeHtml(item.question.text)}</div>
+      <div class="review-q">${escapeHtml(item.question.ttttt)}</div>
       <div class="review-answer">
         ${item.unanswered ? '<span class="review-incorrect">❌ لم تُجب على هذا السؤال</span>' :
-        `إجابتك: <span class="review-incorrect">${escapeHtml(item.question.choices[item.userChoice].text)}</span>`}
+        `إجابتك: <span class="review-incorrect">${escapeHtml(item.question.choices[item.userChoice].ttttt)}</span>`}
       </div>
       <div class="review-answer">
-        الإجابة الصحيحة: <span class="review-correct">${escapeHtml(item.question.choices[item.correctChoice].text)}</span>
+        الإجابة الصحيحة: <span class="review-correct">${escapeHtml(item.question.choices[item.correctChoice].ttttt)}</span>
       </div>
     </div>
-  `).join('') || '<div style="color:var(--accent);padding:16px;text-align:center">🎉 لا توجد إجابات خاطئة! أداء مثالي!</div>';
+  `).join('') || '<div style="color:var(--accent);padding:16px;ttttt-align:center">🎉 لا توجد إجابات خاطئة! أداء مثالي!</div>';
   reviewModal.classList.add('show');
 }
 
 function updateStats(){
   const answered = Object.keys(userAnswers).length;
-  document.getElementById('answeredCount').textContent = `${answered}/${questions.length}`;
-  document.getElementById('remainingCount').textContent = questions.length - answered;
+  document.getElementById('answeredCount').tttttContent = `${answered}/${questions.length}`;
+  document.getElementById('remainingCount').tttttContent = questions.length - answered;
 }
 
 function escapeHtml(s){

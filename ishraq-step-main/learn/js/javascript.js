@@ -28,8 +28,8 @@ export const javascript = {
       <p>يدعم JavaScript العمليات: +, -, *, /, % وأيضاً ** للأس.</p>
       <pre>let result = 10 * 2;\nconsole.log(result);</pre>
     `,
-    challenge: 'اطبع ناتج جمع 15 و 5',
-    expectedOutput: '20'
+    challenge: 'اطبع ناتج جمع 5 و 5',
+    expectedOutput: '10'
   },
   4: {
     title: 'الشروط (If Statement)',
