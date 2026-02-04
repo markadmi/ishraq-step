@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إشراق ستيب - اختر مسارك</title>
+    <link rel="stylesheet" href="../css/style.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="main-wrapper">
+        
+        <div class="header-section">
+            <h1>مسارك<br>نحو الاحتراف</h1>
+            <p>
+                عالم البرمجة واسع، لكن البداية الصحيحة تختصر الطريق.
+                <br>
+                اختر التقنية التي تناسب شغفك، وانطلق في رحلة تعلم تفاعلية مصممة خصيصاً للمبدعين.
+            </p>
+        </div>
+
+        <div class="languages-grid" id="languagesContainer">
+            </div>
+
+    </div>
+
+    <script>
+        const languages = {
+            python: { 
+                name: 'Python', 
+                icon: '../image/python.png', 
+                desc: 'بساطة وقوة في آن واحد، الخيار الأول للذكاء الاصطناعي.', 
+                color: '#dd8448' 
+            },
+            javascript: { 
+                name: 'JavaScript', 
+                icon: '../image/javascript.png', 
+                desc: 'لغة الويب التي لا غنى عنها لبناء مواقع تفاعلية.', 
+                color: '#f7df1e' 
+            },
+            java: { 
+                name: 'Java', 
+                icon: '../image/java.png', 
+                desc: 'الهيكلية القوية للتطبيقات الكبيرة وأنظمة الأندرويد.', 
+                color: '#ff4444' 
+            },
+            cpp: { 
+                name: 'C++', 
+                icon: '../image/cpp.png', 
+                desc: 'تحكم كامل في موارد الجهاز وأداء فائق السرعة.', 
+                color: '#007bff' 
+            }
+        };
+
+        const container = document.getElementById('languagesContainer');
+
+        Object.entries(languages).forEach(([key, lang]) => {
+            const card = document.createElement('div');
+            card.className = 'card-container';
+            
+            // نمرر لون اللغة لمتغير CSS ليتم استخدامه في التوهج والسهم
+            card.style.setProperty('--lang-color', lang.color);
+            
+            // هيكل البطاقة الجديد (مع مربع الأيقونة وسهم التفاعل)
+            card.innerHTML = `
+                <div class="content-wrapper">
+                    <div class="icon-box">
+                        <img src="${lang.icon}" class="lang-icon" alt="${lang.name}">
+                    </div>
+                    <h3 class="title">${lang.name}</h3>
+                    <p class="description">${lang.desc}</p>
+                    
+                    <div class="action-arrow">
+                        ➜
+                    </div>
+                </div>
+            `;
+
+            card.onclick = () => {
+                window.location.href = `levels.html?lang=${key}`;
+            };
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>

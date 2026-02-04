@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <title>تسجيل الدخول</title>
+  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --primary-orange: #ff8a00;
+      --primary-yellow: #ffd166;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --input-bg: rgba(0, 0, 0, 0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #000000;
+      background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000000 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* --- خلفية متحركة --- */
+    .bg-shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+      opacity: 0.4;
+      animation: float 15s infinite alternate;
+    }
+    .shape-1 {
+      width: 300px; height: 300px;
+      background: var(--primary-orange);
+      top: -50px; left: -50px;
+    }
+    .shape-2 {
+      width: 400px; height: 400px;
+      background: #004e92;
+      bottom: -100px; right: -100px;
+      animation-delay: -5s;
+    }
+    @keyframes float {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(40px, 60px); }
+    }
+
+    /* --- الكارد الزجاجي --- */
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      padding: 40px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* لمعان زجاجي */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
+      animation: shine 6s infinite;
+      pointer-events: none;
+    }
+    @keyframes shine {
+      0% { left: -150%; }
+      20% { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-align: center;
+      background: linear-gradient(to right, var(--primary-yellow), var(--primary-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .muted {
+      color: #aaa;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 25px;
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #ddd;
+      font-size: 14px;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      background: var(--input-bg);
+      color: #fff;
+      font-family: 'Cairo';
+      outline: none;
+      transition: 0.3s;
+    }
+    input[type="file"] {
+      padding: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    input:focus {
+      border-color: var(--primary-orange);
+      box-shadow: 0 0 10px rgba(255, 138, 0, 0.2);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Cairo';
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-orange), #ff6b6b);
+      color: white;
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #ccc;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+    .btn:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* --- شريط التقدم --- */
+    .progress-container {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      height: 8px;
+      margin-top: 20px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-orange), var(--primary-yellow));
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--primary-orange);
+    }
+    .progress-text {
+      text-align: center;
+      font-size: 12px;
+      color: var(--primary-yellow);
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* --- Dialog (النافذة المنبثقة) --- */
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .dialog-box {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      transform: scale(0.9);
+      animation: popIn 0.3s forwards;
+    }
+    @keyframes popIn {
+      to { transform: scale(1); }
+    }
+    .dialog-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+    .dialog-title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .dialog-desc {
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .dialog-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary-yellow), var(--primary-orange));
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-weight: bold;
+      font-family: 'Cairo';
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .dialog-btn-outline {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #444;
+      border-radius: 12px;
+      color: #888;
+      cursor: pointer;
+      font-family: 'Cairo';
+    }
+    .dialog-btn-outline:hover {
+      border-color: #f44336;
+      color: #f44336;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <div id="customDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <div id="dIcon" class="dialog-icon">🎉</div>
+      <div id="dTitle" class="dialog-title">تم بنجاح</div>
+      <div id="dDesc" class="dialog-desc">الوصف هنا</div>
+      <button id="dBtnMain" class="dialog-btn">موافق</button>
+      <button id="dBtnSec" class="dialog-btn-outline" style="display:none">إلغاء</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>تسجيل الدخول</h2>
+    <label>الاسم المستعار</label>
+
+    <input id="name" type="text" placeholder="اكتب اسمك هنا...">
+    <label>الصورة الشخصية (Avatar)</label>
+    <input id="avatarFile" type="file" accept="image/*">
+
+    <label>كود الدخول (اختياري)</label>
+    <input id="location" type="text" placeholder="اتركه فارغاً">
+      <a href="../../settings.html">الاحكام و الشروط</a>
+
+    <div class="btn-group">
+      <button id="enterBtn" class="btn btn-primary">تسجيل الدخول</button>
+      <button id="clearBtn" class="btn btn-secondary">مسح</button>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">جارٍ الرفع...</div>
+  </div>
+
+  <script type="module">
+    import { db, storage } from './js/fb.js';
+    import { ref as dbRef, push, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    
+    const logo = "sohag-eg"; 
+
+    const nameEl = document.getElementById('name');
+    const avatarFileEl = document.getElementById('avatarFile');
+    const locationEl = document.getElementById('location');
+    const enterBtn = document.getElementById('enterBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    // عناصر الديالوج
+    const dialogOverlay = document.getElementById('customDialog');
+    const dTitle = document.getElementById('dTitle');
+    const dDesc = document.getElementById('dDesc');
+    const dIcon = document.getElementById('dIcon');
+    const dBtnMain = document.getElementById('dBtnMain');
+    const dBtnSec = document.getElementById('dBtnSec');
+
+    function showDialog(title, desc, icon, mainBtnText, onMainClick, showSecBtn = false) {
+        dTitle.innerText = title;
+        dDesc.innerHTML = desc;
+        dIcon.innerText = icon;
+        dBtnMain.innerText = mainBtnText;
+        
+        dBtnMain.onclick = onMainClick;
+        
+        if(showSecBtn) {
+            dBtnSec.style.display = 'block';
+            dBtnSec.innerText = 'تسجيل خروج (حساب جديد)';
+            dBtnSec.onclick = () => {
+                localStorage.removeItem('chat_session');
+                dialogOverlay.style.display = 'none';
+                location.reload();
+            };
+        } else {
+            dBtnSec.style.display = 'none';
+        }
+
+        dialogOverlay.style.display = 'flex';
+    }
+
+    function getDeviceId() {
+      let id = localStorage.getItem('device_id');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('device_id', id);
+      }
+      return id;
+    }
+    const deviceId = getDeviceId();
+
+    // فحص الجلسة عند التحميل
+    const savedSession = localStorage.getItem('chat_session');
+    if (savedSession) {
+      try {
+        // اذا كنت مسجل الدخول بي الفعل
+        const session = JSON.parse(savedSession);
+        window.location.href = '../index.html'; 
+
+      } catch (e) {
+        localStorage.removeItem('chat_session');
+      }
+    }
+
+    enterBtn.addEventListener('click', async () => {
+      const name = (nameEl.value || '').trim();
+      const pass = locationEl.value || '';
+      const file = avatarFileEl.files[0];
+
+      if (!name) return alert('الرجاء إدخال اسم');
+      if (!file) return alert('الرجاء اختيار صورة');
+
+      enterBtn.disabled = true;
+      enterBtn.innerText = 'جاري المعالجة...';
+
+      progressContainer.style.display = 'block';
+      progressText.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressText.innerText = 'جارٍ رفع الصورة...';
+
+      try {
+        const stamp = Date.now();
+        const safe = name.replace(/[^\w\-ء-ي ]/g,'').replace(/ /g,'_').slice(0,40);
+        const path = `avatars/${safe}_${stamp}.png`;
+        const sRef = storageRef(storage, path);
+
+        const uploadTask = uploadBytesResumable(sRef, file);
+
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.style.width = progress.toFixed(0) + '%';
+            progressText.innerText = `جارٍ الرفع... ${progress.toFixed(0)}%`;
+          }, 
+          (error) => {
+            console.error(error);
+            alert('فشل الرفع! تأكد من الاتصال بالانترنت.');
+            enterBtn.disabled = false;
+            enterBtn.innerText = 'دخول للدردشة';
+          }, 
+          async () => {
+            // عند اكتمال الرفع
+            const avatarUrl = await getDownloadURL(uploadTask.snapshot.ref);
+
+            const userRef = push(dbRef(db, 'users'));
+            const role = (pass === logo) ? 'مسؤول' : 'طالب';
+
+            await set(userRef, {
+              name,
+              avatarUrl,
+              role,
+              deviceId,
+              joinedAt: Date.now()
+            });
+
+            const session = { userKey: userRef.key, deviceId, name, avatarUrl, role };
+            localStorage.setItem('chat_session', JSON.stringify(session));
+
+            // رسالة الانضمام
+            const msgRef = push(dbRef(db, 'messages'));
+            await set(msgRef, {
+              type: 'join',
+              name,
+              avatar: avatarUrl,
+              role,
+              text: `${name} مجتمع المبرمجين`,
+              timestamp: Date.now()
+            });
+
+            progressText.innerText = 'تم التسجيل بنجاح! ✅';
+            
+            // إظهار الديالوج بدلاً من التحويل المباشر
+            showDialog(
+                "تم التسجيل بنجاح! 🎉",
+                "نشكر انضمامك إلى مجتمعنا. اضغط أدناه للدخول.",
+                "✨",
+                "ادخل مجتمعنا الان",
+                () => { window.location.href = '../index.html'; }
+            );
+          }
+        );
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ غير متوقع.');
+        enterBtn.disabled = false;
+        enterBtn.innerText = 'دخول';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      nameEl.value = '';
+      locationEl.value = '';
+      avatarFileEl.value = '';
+      progressContainer.style.display = 'none';
+      progressText.style.display = 'none';
+      enterBtn.disabled = false;
+      enterBtn.innerText = 'الدخول';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <title>ساحة الدردشة - Ishraq Step</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4496926993663116" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --primary-orange: #ff8a00;
+      --primary-yellow: #ffd166;
+      --glass-bg: rgba(20, 20, 20, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --msg-me-bg: linear-gradient(135deg, var(--primary-orange), var(--primary-yellow));
+      --msg-other-bg: rgba(255, 255, 255, 0.08);
+      --danger: #ff4b4b;
+      --success: #00b09b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #000000;
+      background-image: radial-gradient(circle at 50% 0%, #111 0%, #000 100%);
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- خلفية متحركة --- */
+    .bg-shape {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: -1;
+      opacity: 0.25;
+      animation: float 20s infinite alternate;
+    }
+    .shape-1 { width: 400px; height: 400px; background: var(--primary-orange); top: -100px; left: -100px; }
+    .shape-2 { width: 500px; height: 500px; background: #004e92; bottom: -150px; right: -150px; }
+    @keyframes float { from { transform: translate(0,0); } to { transform: translate(30px, 50px); } }
+
+    /* --- التخطيط الرئيسي --- */
+    .wrap {
+      width: 95%;
+      height: 90vh;
+      position: relative;
+      margin: 0 auto;
+      margin-bottom: 5%;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      height: 100%; /* تأخذ كامل ارتفاع الغلاف */
+    }
+
+    /* --- هيدر الدردشة --- */
+    .chat-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-info h2 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #ccc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .chat-info span {
+      font-size: 12px; color: #aaa;
+    }
+
+    /* أزرار الأدوات في الهيدر (للمسؤول) */
+    .header-tools {
+      display: flex;
+      gap: 10px;
+    }
+    .tool-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: none; /* مخفي افتراضياً */
+    }
+    .tool-btn:hover { background: rgba(255,255,255,0.2); }
+    .tool-btn.danger { color: #ff4b4b; border-color: rgba(255, 75, 75, 0.3); }
+    .tool-btn.warning { color: var(--primary-yellow); border-color: rgba(255, 209, 102, 0.3); }
+
+    /* --- منطقة الرسائل --- */
+    .messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      scroll-behavior: smooth;
+    }
+    
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* --- تصميم الرسالة --- */
+    .msg-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      max-width: 80%;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .msg-row.me {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 35px; height: 35px;
+      border-radius: 50%;
+      border: 2px solid var(--glass-border);
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .msg-body {
+      padding: 10px 15px;
+      border-radius: 18px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .msg-row.other .msg-body {
+      background: var(--msg-other-bg);
+      border-bottom-right-radius: 4px; 
+      color: #eee;
+    }
+
+    .msg-row.me .msg-body {
+      background: var(--msg-me-bg);
+      border-bottom-left-radius: 4px;
+      color: #000;
+      font-weight: 600;
+      box-shadow: 0 0 15px rgba(255, 138, 0, 0.3);
+    }
+
+    .msg-head {
+      font-size: 11px;
+      margin-bottom: 4px;
+      opacity: 0.7;
+      display: flex;
+      gap: 5px;
+    }
+    .role-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+
+    /* --- منطقة الكتابة --- */
+    .composer {
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      gap: 10px;
+    }
+    .composer input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border);
+      padding: 12px 20px;
+      border-radius: 30px;
+      color: #fff;
+      font-family: 'Cairo';
+      outline: none;
+      transition: 0.3s;
+    }
+    .composer input:focus {
+      border-color: var(--primary-orange);
+      box-shadow: 0 0 10px rgba(255, 138, 0, 0.1);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Cairo';
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-primary { background: var(--msg-me-bg); color: #000; }
+    .btn-primary:hover { transform: scale(1.05); }
+
+    /* --- Modal --- */
+    .user-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .modal-content {
+      background: #1a1a1a;
+      border: 1px solid var(--glass-border);
+      padding: 30px;
+      border-radius: 20px;
+      width: 300px;
+      text-align: center;
+      animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .avatar-lg { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary-orange); margin-bottom: 10px; object-fit: cover; }
+
+    /* --- Loading Overlay --- */
+    .loading-overlay {
+      position: fixed; inset: 0; background: #000; z-index: 10000;
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 15px;
+      transition: opacity 0.5s;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    
+    .spinner {
+      width: 50px; height: 50px;
+      border: 3px solid rgba(255, 138, 0, 0.3);
+      border-top-color: var(--primary-orange);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .wrap { width: 100%; height: 100vh; border-radius: 0; }
+      .card { border-radius: 0; border: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" style="color:#888;">جاري الاتصال...</div>
+  </div>
+
+  <div class="wrap">
+    <div class="card chat-col">
+      <div class="chat-header">
+        <div class="chat-info">
+          <h2>🔥 جروب مهندسين جامعة سوهاج</h2>
+          <div id="statustext">متصل الآن</div>
+        </div>
+        
+        <div class="header-tools" id="adminTools">
+          <button id="toggleChatBtn" class="tool-btn warning">⏸️ إيقاف</button>
+          <button id="clearAllBtn" class="tool-btn danger">🗑 حذف الكل</button>
+        </div>
+      </div>
+
+      <div id="messages" class="messages"></div>
+
+      <div class="composer">
+        <input id="msgtext" type="text" placeholder="اكتب رسالتك هنا...">
+        <button id="sendBtn" class="btn btn-primary">إرسال 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="userModal" class="user-modal">
+    <div class="modal-content">
+      <img id="modalAvatar" src="" class="avatar-lg" alt="">
+      <h3 id="modalName" style="color:#fff; margin:10px 0;"></h3>
+      <div id="modalRole" style="color:var(--primary-orange); margin-bottom:20px; font-size:14px;"></div>
+      
+      <button id="banToggleBtn" class="btn" style="width:100%; margin-bottom:10px;"></button>
+      <button id="closeModal" class="btn btn-muted" style="background:transparent; color:#888; border:1px solid #444; width:100%;">إغلاق</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './js/fb.js';
+    import {
+      ref as dbRef,
+      push,
+      onChildAdded,
+      onChildRemoved,
+      set,
+      query,
+      orderByChild,
+      limitToFirst,
+      get,
+      remove,
+      onValue,
+      update
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    // === التحقق من الجلسة ===
+    const s = localStorage.getItem('chat_session');
+    if (!s) {
+      window.location.href = 'start.html';
+      throw new Error('Not logged in'); 
+    }
+
+    const session = JSON.parse(s);
+    let currentUser = session;
+    currentUser.deviceId = localStorage.getItem('device_id');
+
+    // تعريف العناصر
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const messagesDiv = document.getElementById('messages');
+    const msgtext = document.getElementById('msgtext');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    // أدوات المسؤول (في الهيدر)
+    const adminTools = document.getElementById('adminTools');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const toggleChatBtn = document.getElementById('toggleChatBtn');
+    const statustext = document.getElementById('statustext');
+
+    // المودال
+    const userModal = document.getElementById('userModal');
+    const modalAvatar = document.getElementById('modalAvatar');
+    const modalName = document.getElementById('modalName');
+    const modalRole = document.getElementById('modalRole');
+    const banToggleBtn = document.getElementById('banToggleBtn');
+    const closeModal = document.getElementById('closeModal');
+
+    // إظهار أدوات المسؤول إذا كان المستخدم مسؤولاً أو رئيساً
+    if (currentUser.role === 'رئيس' || currentUser.role === 'مسؤول') {
+      adminTools.style.display = 'flex'; // إظهار الأزرار في الهيدر
+    }
+
+    // تحميل الحظر
+    const bansRef = dbRef(db, 'bans');
+    let bans = {};
+    onValue(bansRef, (snap) => {
+      bans = snap.val() || {};
+      loadingOverlay.classList.add('hidden');
+    });
+
+    // حالة الدردشة (مفتوحة/مغلقة)
+    const chatStatusRef = dbRef(db, 'chat_status');
+    let chatOpen = true;
+    onValue(chatStatusRef, (snap) => {
+      const val = snap.val();
+      chatOpen = val ? val.open : true;
+      
+      if(chatOpen) {
+          statustext.innertext = "🟢 متصل الآن";
+          statustext.style.color = "#00ff88";
+          toggleChatBtn.innertext = '⏸️ إيقاف';
+          toggleChatBtn.className = "tool-btn warning";
+      } else {
+          statustext.innertext = "🔴 الدردشة مغلقة";
+          statustext.style.color = "#ff4b4b";
+          toggleChatBtn.innertext = '▶️ فتح';
+          toggleChatBtn.className = "tool-btn success";
+          toggleChatBtn.style.borderColor = "#00b09b";
+          toggleChatBtn.style.color = "#00b09b";
+      }
+    });
+
+    toggleChatBtn.addEventListener('click', async () => {
+      if (currentUser.role !== 'رئيس') return alert('هذه الخاصية للرئيس فقط');
+      await set(chatStatusRef, { open: !chatOpen });
+    });
+
+    // === إرسال الرسالة ===
+    sendBtn.addEventListener('click', sendMessage);
+    msgtext.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+    async function sendMessage() {
+      if (!chatOpen) return alert('⛔ الدردشة مغلقة مؤقتاً');
+      if (bans[currentUser.deviceId]) return alert('🚫 حسابك محظور');
+
+      const text = (msgtext.value || '').trim();
+      if (!text) return;
+
+      try {
+        const mRef = push(dbRef(db, 'messages'));
+        await set(mRef, {
+          type: 'msg',
+          name: currentUser.name,
+          avatar: currentUser.avatarUrl || '',
+          role: currentUser.role || 'طالب',
+          deviceId: currentUser.deviceId,
+          text,
+          timestamp: Date.now()
+        });
+        msgtext.value = '';
+        msgtext.focus();
+        await trimMessagesIfNeeded();
+      } catch (err) { console.error(err); }
+    }
+
+    // === استقبال الرسائل ===
+    const messagesRef = dbRef(db, 'messages');
+    
+    onChildAdded(messagesRef, (snap) => {
+      const m = snap.val();
+      if (!m) return;
+      if (bans[m.deviceId]) return; 
+      appendMessage(m, snap.key);
+    });
+
+    onChildRemoved(messagesRef, (snap) => {
+      const msgEl = document.getElementById(`msg-${snap.key}`);
+      if (msgEl) msgEl.remove();
+    });
+
+    function appendMessage(m, key) {
+      const isMe = (m.deviceId === currentUser.deviceId);
+      
+      const wrap = document.createElement('div');
+      wrap.className = `msg-row ${isMe ? 'me' : 'other'}`;
+      wrap.id = `msg-${key}`;
+
+      const avatar = document.createElement('img');
+      avatar.className = 'avatar';
+      avatar.src = m.avatar || 'https://via.placeholder.com/40';
+      
+      avatar.addEventListener('click', () => {
+        if (currentUser.role === 'مسؤول' || currentUser.role === 'رئيس') {
+           if (!isMe) openUserModal(m); 
+        }
+      });
+
+      const body = document.createElement('div');
+      body.className = 'msg-body';
+      
+      const roletext = m.role ? `<span class="role-badge">${m.role}</span>` : '';
+      
+      let headerHtml = '';
+      if(!isMe) {
+          headerHtml = `
+            <div class="msg-head">
+               ${roletext} <strong>${escapeHtml(m.name)}</strong>
+            </div>
+          `;
+      }
+
+      body.innerHTML = `
+        ${headerHtml}
+        <div class="msg-text">${escapeHtml(m.text)}</div>
+      `;
+
+      wrap.appendChild(avatar);
+      wrap.appendChild(body);
+      messagesDiv.appendChild(wrap);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // === إدارة الحظر (Modal) ===
+    function openUserModal(user) {
+      modalAvatar.src = user.avatar || '';
+      modalName.innertext = user.name || 'مستخدم';
+      modalRole.innertext = user.role || 'عضو';
+      
+      const isBanned = !!bans[user.deviceId];
+
+      if (isBanned) {
+        banToggleBtn.innertext = '✅ فك الحظر';
+        banToggleBtn.className = 'btn btn-primary';
+      } else {
+        banToggleBtn.innertext = '🚫 حظر المستخدم';
+        banToggleBtn.className = 'btn btn-danger';
+        banToggleBtn.style.background = '#ff4b4b';
+        banToggleBtn.style.color = '#fff';
+      }
+
+      banToggleBtn.onclick = async () => {
+        try {
+          if (isBanned) {
+            await remove(dbRef(db, `bans/${user.deviceId}`));
+          } else {
+            await set(dbRef(db, `bans/${user.deviceId}`), {
+              name: user.name,
+              timestamp: Date.now()
+            });
+          }
+          closeModal.click();
+        } catch (err) { console.error(err); }
+      };
+
+      userModal.style.display = 'flex';
+    }
+
+    closeModal.addEventListener('click', () => { userModal.style.display = 'none'; });
+    userModal.addEventListener('click', (e) => { if (e.target === userModal) userModal.style.display = 'none'; });
+
+    // === حذف الكل ===
+    clearAllBtn.addEventListener('click', async () => {
+      if (currentUser.role !== 'مسؤول' && currentUser.role !== 'رئيس') return;
+      if (!confirm('⚠️ تحذير: سيتم حذف جميع المحادثات للجميع!')) return;
+      try {
+        await set(dbRef(db, 'messages'), null);
+      } catch (err) { console.error(err); }
+    });
+
+    function escapeHtml(text){
+      if(!text) return '';
+      return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // تنظيف الرسائل القديمة
+    async function trimMessagesIfNeeded() {
+      try {
+        const q = query(dbRef(db, 'messages'), orderByChild('timestamp'));
+        const snap = await get(q);
+        if (!snap.exists()) return;
+        
+        const data = snap.val();
+        const keys = Object.keys(data);
+        const MAX_MSGS = 50;
+        
+        if (keys.length > MAX_MSGS) {
+          const removeCount = keys.length - MAX_MSGS;
+          const q2 = query(dbRef(db, 'messages'), orderByChild('timestamp'), limitToFirst(removeCount));
+          const snap2 = await get(q2);
+          
+          if (snap2.exists()) {
+             const updates = {};
+             snap2.forEach(child => {
+                 updates[child.key] = null;
+             });
+             await update(dbRef(db, 'messages'), updates);
+          }
+        }
+      } catch (err) { console.error('trim error', err); }
+    }
+
+    setInterval(() => trimMessagesIfNeeded(), 20000);
+
+  </script>
+</body>
+</html>

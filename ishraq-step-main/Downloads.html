@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>المكتبة الإلكترونية - Ishraq Step</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; direction: rtl; }
+    header {font-size: 32px; font-weight: bold; margin-bottom: 20px; color: #333; }
+    .categories { max-width: 1200px; margin: 0 auto 18px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
+    .category-btn { background:#eee;border-radius:20px;padding:8px 14px;cursor:pointer;font-weight:600;color:#333;border:1px solid transparent }
+    .category-btn.active { background:#4CAF50;color:#fff;border-color:#3e8e41 }
+    .books-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .book-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 0;  transition: transform 0.3s; overflow: hidden; display: flex; flex-direction: column; }
+    .book-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+    .book-cover-img { width: 100%; height: 120px; object-fit: cover; border-radius: 0; }
+    .book-title { font-size: 12px; font-weight: 600; margin: 4px 4px 0 4px; color: #333; }
+    .book-description { font-size: 10px; color: #666; margin: 3px 4px; min-height: 15px; line-height: 1.3; }
+    .book-actions { padding: 4px; display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+    .download-btn { background-color: #4CAF50; color: white; padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background-color 0.3s; display:inline-block }
+    .download-btn:hover { background-color: #45a049; }
+    .meta { font-size:11px;color:#666;margin-top:4px;display:none; }
+    .loading {font-size: 18px; color: #666; }
+    footer {margin-top: 50px; color: #999; font-size: 14px; }
+    @media (max-width:600px){ .book-card{padding:12px} .book-description{min-height:30px} }
+    @media(min-width:900px){ body{margin-inline-end:320px !important} }
+    #siteSidebar{position:fixed;top:0;right:0;height:100vh;width:300px;border:0;z-index:9999}
+    .loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10001;flex-direction:column;gap:20px}
+    .loading-overlay.hidden{display:none}
+    .loading-spinner{width:60px;height:60px;border:4px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin-large 0.8s linear infinite}
+    @keyframes spin-large{to{transform:rotate(360deg)}}
+    .loading-text{color:#fff;font-size:16px;}
+  </style>
+  <link rel="stylesheet" href="css/open-sidebar.css">
+</head>
+
+<body>
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">جاري تحميل البيانات...</div>
+  </div>
+
+  <header>📖 المكتبة الإلكترونية - Ishraq Step</header>
+
+  <!-- أقسام تظهر أولاً -->
+  <div class="categories" id="categoriesContainer" aria-hidden="false">
+    <!-- يتم ملؤها ديناميكياً -->
+  </div>
+
+  <div class="books-container" id="booksContainer">
+    <div class="loading">جاري تحميل الكتب...</div>
+  </div>
+
+  <footer>© 2025 Ishraq Step – جميع الحقوق محفوظة</footer>
+
+  <input type="checkbox" id="toggleSidebar">
+ <label for="toggleSidebar" class="toggle-btn">
+  ☰ 
+ </label>
+ 
+ <iframe id="siteSidebar" src="sidebar.html"></iframe>
+
+
+  <script type="module">
+    import { db } from './chat/js/fb.js';
+    import { ref as dbRef, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const booksContainer = document.getElementById('booksContainer');
+    const categoriesContainer = document.getElementById('categoriesContainer');
+
+    function esc(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+    function dateLabel(d){ if(!d) return ''; try{ return new Date(d).toLocaleDateString('ar-SA'); }catch(e){return ''} }
+
+    // اقرأ باراميتر id من رابط الصفحة (للبحث عن طريق رابط الصفحة فقط)
+    function getQueryParam(name){
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+    const idParam = getQueryParam('id'); // إذا كان موجوداً سنعرض الكتاب بحسب هذا المعرف فقط
+
+    let currentCategory = 'all';
+
+    function renderCategories(categories){
+      categoriesContainer.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className = 'category-btn' + (currentCategory === 'all' ? ' active' : '');
+      allBtn.textContent = 'الكل';
+      allBtn.onclick = () => { currentCategory = 'all'; updateActiveCategory(); renderFromCache(); };
+      categoriesContainer.appendChild(allBtn);
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'category-btn' + (currentCategory === cat ? ' active' : '');
+        btn.textContent = cat || 'بدون قسم';
+        btn.onclick = () => { currentCategory = cat; updateActiveCategory(); renderFromCache(); };
+        categoriesContainer.appendChild(btn);
+      });
+    }
+
+    function updateActiveCategory(){
+      Array.from(categoriesContainer.children).forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === (currentCategory === 'all' ? 'الكل' : (currentCategory || 'بدون قسم')));
+      });
+    }
+
+    let cachedList = []; 
+
+    function renderList(list){
+      booksContainer.innerHTML = '';
+      if (!list.length) {
+        booksContainer.innerHTML = `<div class="loading">${ idParam ? 'لا يوجد كتاب بالمعرف المطلوب' : 'لا توجد كتب حالياً' }</div>`;
+        return;
+      }
+      list.forEach(([id, book]) => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+          <img src="${esc(book.coverUrl || 'https://picsum.photos/300/420')}" alt="cover" class="book-cover-img">
+          <h3 class="book-title">${esc(book.title)}</h3>
+          <p class="book-description">${esc(book.description || '')}</p>
+          <div class="book-actions">
+            <a class="download-btn" href="book-details.html?id=${encodeURIComponent(id)}" style="padding:5px 8px;font-size:11px">التفاصيل</a>
+            ${book.fileUrl ? `<a class="download-btn" href="${esc(book.fileUrl)}" download style="padding:5px 8px;font-size:11px">تحميل</a>` : ''}
+          </div>
+        `;
+        booksContainer.appendChild(card);
+      });
+    }
+
+    // يعرض من الكاش مع احترام الفلتر (idParam أو currentCategory)
+    function renderFromCache(){
+      if(idParam){
+        const found = cachedList.find(([id]) => id === idParam);
+        if(found) renderList([found]);
+        else renderList([]);
+        // عند البحث عبر id نخفى الاقسام لأن البحث عبر الرابط فقط مطلوب
+        categoriesContainer.style.display = 'none';
+        return;
+      }
+      categoriesContainer.style.display = 'flex';
+      let filtered = cachedList.slice();
+      if(currentCategory && currentCategory !== 'all'){
+        filtered = filtered.filter(([_, book]) => (book.category || '') === currentCategory);
+      }
+      // نقطتان: نُظهر كتب القسم المحدد أولاً — بتكرار ترتيبهم طبيعي
+      renderList(filtered);
+      updateActiveCategory();
+    }
+
+    // ===== للتطوير فقط: تحميل البيانات التجريبية =====
+    const USE_SAMPLE_DATA = false; // غيّر إلى true للاختبار
+    
+    if(USE_SAMPLE_DATA) {
+      fetch('sample-data.json')
+        .then(res => res.json())
+        .then(data => {
+          // محاكاة Firebase onValue
+          simulateFirebaseData(data.books);
+        })
+        .catch(err => console.error('خطأ في تحميل البيانات التجريبية:', err));
+      
+      function simulateFirebaseData(books) {
+        const list = Object.entries(books).sort((a,b) => new Date(b[1].createdAt || 0) - new Date(a[1].createdAt || 0));
+        cachedList = list;
+        
+        const categoriesSet = new Set();
+        list.forEach(([_, book]) => { if(book && book.category) categoriesSet.add(book.category); });
+        const categories = Array.from(categoriesSet).sort((a,b) => a.localeCompare(b, 'ar'));
+        
+        renderCategories(categories);
+        renderFromCache();
+        loadingOverlay.classList.add('hidden');
+      }
+    } else {
+      // البيانات الحقيقية من Firebase
+      onValue(dbRef(db, 'books'), (snapshot) => {
+        const data = snapshot.val() || {};
+        // تحويل إلى مصفوفة وترتيب حسب createdAt تنازلي
+        const list = Object.entries(data).sort((a,b) => new Date(b[1].createdAt || 0) - new Date(a[1].createdAt || 0));
+        cachedList = list;
+
+        // بناء قائمة الاقسام الفريدة (ترتيب أبجدي عربي بسيط)
+        const categoriesSet = new Set();
+        list.forEach(([_, book]) => { if(book && book.category) categoriesSet.add(book.category); });
+        const categories = Array.from(categoriesSet).sort((a,b) => a.localeCompare(b, 'ar') );
+
+        renderCategories(categories);
+        renderFromCache();
+        loadingOverlay.classList.add('hidden');
+      }, (err) => {
+        booksContainer.innerHTML = '<div class="loading">خطأ في تحميل الكتب</div>';
+        console.error(err);
+        loadingOverlay.classList.add('hidden');
+      });
+    }
+  </script>
+
+</body>
+</html>
