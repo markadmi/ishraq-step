@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>موقع الخدع التقنية - مطاط الفيديو</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #0f0f0f; color: #00ff41; padding-top: 50px; }
+        .container { background: #1a1a1a; padding: 40px; border-radius: 20px; border: 2px solid #00ff41; display: inline-block; box-shadow: 0 0 30px rgba(0, 255, 65, 0.2); }
+        h1 { text-shadow: 0 0 10px #00ff41; }
+        input { margin: 25px 0; background: #333; color: white; border: 1px solid #00ff41; padding: 10px; border-radius: 5px; }
+        button { background: #00ff41; color: black; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #008f11; color: white; box-shadow: 0 0 15px #00ff41; }
+        #status { margin-top: 25px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>موقع ishraq step</h1>
+    <p>اقوى خدعة تقنية لتزويد وقت الفديو الي الف مره من حجمة</p>
+    <input type="file" id="videoInput" accept="video/mp4">
+    <br>
+    <button onclick="stableStretch()">بدء السحر ✨</button>
+    
+    <div id="status">انتظار اختيار الملف...</div>
+</div>
+
+<script>
+function findFirstOccurrence(data, pattern) {
+    for (let i = 0; i < data.length - pattern.length; i++) {
+        let match = true;
+        for (let j = 0; j < pattern.length; j++) {
+            if (data[i + j] !== pattern[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) return i;
+    }
+    return -1;
+}
+
+function stableStretch() {
+    const fileInput = document.getElementById('videoInput');
+    const status = document.getElementById('status');
+    
+    if (!fileInput.files[0]) {
+        status.innerText = "❌ الرجاء اختيار ملف أولاً!";
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        let buffer = e.target.result;
+        let view = new Uint8Array(buffer);
+
+        const mvhd_pattern = [109, 118, 104, 100]; // "mvhd"
+        const mdhd_pattern = [109, 100, 104, 100]; // "mdhd"
+
+        let mvhd_pos = findFirstOccurrence(view, mvhd_pattern);
+        if (mvhd_pos !== -1) {
+            let version = view[mvhd_pos + 4];
+            if (version === 0) {
+                // Timescale (12 bytes after mvhd name + 4 bytes name)
+                view[mvhd_pos + 4 + 12] = 0x00;
+                view[mvhd_pos + 4 + 13] = 0x00;
+                view[mvhd_pos + 4 + 14] = 0x00;
+                view[mvhd_pos + 4 + 15] = 0x01;
+
+                // Duration (16 bytes after mvhd name + 4 bytes name)
+                view[mvhd_pos + 4 + 16] = 0xFF;
+                view[mvhd_pos + 4 + 17] = 0x0F;
+                view[mvhd_pos + 4 + 18] = 0xFF;
+                view[mvhd_pos + 4 + 19] = 0xFF;
+                console.log("✅ Modified mvhd");
+            }
+        }
+
+        // 2. تعديل mdhd (مرة واحدة فقط)
+        let mdhd_pos = findFirstOccurrence(view, mdhd_pattern);
+        if (mdhd_pos !== -1) {
+            // Timescale in mdhd (Version 0)
+            view[mdhd_pos + 4 + 12] = 0x00;
+            view[mdhd_pos + 4 + 13] = 0x00;
+            view[mdhd_pos + 4 + 14] = 0x00;
+            view[mdhd_pos + 4 + 15] = 0x01;
+            console.log("✅ Modified mdhd");
+        }
+
+        status.innerText = "✅ تمت الخدعة بنجاح! جاري التحميل...";
+        const blob = new Blob([view], { type: "video/mp4" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "tricked_" + file.name;
+        a.click();
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+</script>
+
+</body>
+</html>
